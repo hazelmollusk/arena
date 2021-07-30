@@ -1,0 +1,21 @@
+{
+  "name": "records",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mithril": "^2.0.4",
+    "mobx": "^6.3.2",
+    "npm": "^7.20.2",
+    "walax": "file:../../../../walax",
+    "webpack": "^5.42.0"
+  },
+  "devDependencies": {
+    "webpack-cli": "^4.7.2"
+  }
+}
