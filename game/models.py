@@ -32,6 +32,12 @@ class Game(ArenaModel):
     )
 
 
+class Cell(ArenaModel):
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    x = models.PositiveSmallIntegerField()
+    y = models.PositiveSmallIntegerField()
+
+
 class CreatureBase(ArenaModel):
     name = models.CharField(max_length=32)
     exp = models.IntegerField(default=0)
@@ -40,19 +46,20 @@ class CreatureBase(ArenaModel):
     damage = models.IntegerField(default=1)
 
 
-class Wizard(ArenaModel):
-    base = models.ForeignKey(CreatureBase, on_delete=models.CASCADE)
-    game = models.ForeignKey(Game, on_delete=models.CASCADE)
-    player = models.ForeignKey(Player, on_delete=models.CASCADE)
-
-
 class Creature(ArenaModel):
     base = models.ForeignKey(CreatureBase, on_delete=models.CASCADE)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
-    wizard = models.ForeignKey(
-        Wizard, on_delete=models.CASCADE, related_name="creatures"
+    player = models.ForeignKey(
+        Player, on_delete=models.CASCADE, related_name="creatures"
     )
     hp = models.IntegerField(default=10)
+    exp = models.IntegerField(default=0)
+    x = models.PositiveSmallIntegerField()
+    y = models.PositiveSmallIntegerField()
+
+
+class Wizard(Creature):
+    name = models.CharField(max_length=32)
 
 
 class SpellBase(ArenaModel):
@@ -60,12 +67,18 @@ class SpellBase(ArenaModel):
     alignment = models.IntegerField(default=0)
     exp = models.IntegerField(default=0)
     summon = models.BooleanField(default=False)
-    creature = models.ForeignKey(
-        CreatureBase, on_delete=models.CASCADE, null=True, blank=True
+    summon_creature = models.ForeignKey(
+        Creature,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="summons",
     )
 
 
 class Spell(ArenaModel):
     base = models.ForeignKey(SpellBase, on_delete=models.CASCADE)
-    wizard = models.ForeignKey(Wizard, on_delete=models.CASCADE)
     used = models.BooleanField(default=False)
+    creature = models.ForeignKey(
+        Creature, on_delete=models.CASCADE, related_name="spells"
+    )
