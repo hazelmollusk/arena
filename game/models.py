@@ -4,6 +4,7 @@ from walax.models import WalaxModel
 import uuid
 from django.contrib.auth import get_user_model
 
+
 USER = get_user_model()
 
 
@@ -21,7 +22,7 @@ class ArenaModel(WalaxModel, UUIDPrimaryKeyMixin):
 
 class Player(ArenaModel):
     name = models.CharField(max_length=32)
-    user = models.ForeignKey(USER, on_delete=models.CASCADE)
+    user = models.ForeignKey(USER, on_delete=models.CASCADE, related_name="players")
 
 
 class Game(ArenaModel):
