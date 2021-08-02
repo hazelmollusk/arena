@@ -28,11 +28,5 @@ for model in [
 
 urlpatterns = [
     path(r"api/", include(router.urls)),
-    # path(r'api/', include(router.urls)),
-    # path(r'api/', get_schema_view(
-    #     title="Record Stores",
-    #     description="API for example application",
-    #     version="1.0.0"
-    # ), name='openapi-schema'),
     path("", lambda req: redirect(static("arena/index.html")), name="index"),
 ]

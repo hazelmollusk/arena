@@ -8,7 +8,6 @@ from django.urls import path
 
 urlpatterns = [
     path(r"", lambda req: redirect("arena/")),
-    path("admin/", admin.site.urls),
+    path(r"admin/", admin.site.urls),
     path(r"arena/", include("game.urls")),
-    path(r"api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]
