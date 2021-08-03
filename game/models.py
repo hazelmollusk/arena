@@ -20,16 +20,12 @@ class ArenaModel(WalaxModel, UUIDPrimaryKeyMixin):
         abstract = True
 
 
-class Player(ArenaModel):
-    name = models.CharField(max_length=32)
-    user = models.ForeignKey(USER, on_delete=models.CASCADE, related_name="players")
-
-
 class Game(ArenaModel):
-    owner = models.ForeignKey(Player, on_delete=models.CASCADE, related_name="games")
+    name = models.CharField(max_length=32)
+    owner = models.ForeignKey(USER, on_delete=models.CASCADE, related_name="games")
     active = models.BooleanField(default=True)
     winner = models.ForeignKey(
-        Player, on_delete=models.CASCADE, related_name="wins", null=True, blank=True
+        USER, on_delete=models.CASCADE, related_name="wins", null=True, blank=True
     )
 
 
@@ -50,9 +46,7 @@ class CreatureBase(ArenaModel):
 class Creature(ArenaModel):
     base = models.ForeignKey(CreatureBase, on_delete=models.CASCADE)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
-    player = models.ForeignKey(
-        Player, on_delete=models.CASCADE, related_name="creatures"
-    )
+    user = models.ForeignKey(USER, on_delete=models.CASCADE, related_name="creatures")
     hp = models.IntegerField(default=10)
     exp = models.IntegerField(default=0)
     x = models.PositiveSmallIntegerField()
