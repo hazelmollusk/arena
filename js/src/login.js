@@ -19,6 +19,7 @@ export default class Login {
                 })
             ]) :
             m('.login', [
+                m('.accessToken', w.auth.token),
                 m('input#logout', {
                     'type': 'button',
                     'value': 'Log out',

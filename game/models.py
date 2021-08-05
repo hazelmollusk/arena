@@ -3,6 +3,7 @@ from django.db.models.fields import UUIDField
 from walax.models import WalaxModel
 import uuid
 from django.contrib.auth import get_user_model
+from datetime import timedelta
 
 
 USER = get_user_model()
@@ -27,6 +28,7 @@ class Game(ArenaModel):
     winner = models.ForeignKey(
         USER, on_delete=models.CASCADE, related_name="wins", null=True, blank=True
     )
+    size = models.PositiveSmallIntegerField(default=20)
 
 
 class Cell(ArenaModel):

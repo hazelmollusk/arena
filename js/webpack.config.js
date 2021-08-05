@@ -10,7 +10,7 @@ module.exports = {
         walax: path.resolve(__dirname, 'src/app.js')
     },
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, '../game/static/arena/'),
         filename: 'go.js',
         library: 'umd'
     },

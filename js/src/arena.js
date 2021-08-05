@@ -10,13 +10,13 @@ export default class Arena extends w.cls.Control {
         document.body.innerHTML = '<div id="menu"></div> <div id="page"/>'
         m.mount(document.getElementById('menu'), Menu)
         m.route(document.getElementById('page'), '/home', {
-            '/game': Game,
             '/home': Home,
+            '/game': Game,
             '/login': Login
         })
     }
     async getCurrentUser() {
-        return w.net.get(`${w.apiBase}user/`).then(user => {
+        return w.net.get(`${w.apiBase}auth/user/`).then(user => {
             w.log.info('HERE', user)
             let obj = w.obj.receiveObject(w.obj.User, user)
             return obj

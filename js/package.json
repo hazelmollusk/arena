@@ -10,12 +10,13 @@
   "license": "ISC",
   "dependencies": {
     "mithril": "^2.0.4",
-    "mobx": "^6.3.2",
+    "node": "^16.6.1",
     "npm": "^7.20.2",
-    "walax": "file:../../../../walax",
+    "walax": "file:../../walax",
     "webpack": "^5.42.0"
   },
   "devDependencies": {
+    "mobx": "^6.3.2",
     "webpack-cli": "^4.7.2"
   }
 }
