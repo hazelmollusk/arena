@@ -1,3 +1,4 @@
+import regeneratorRuntime from "regenerator-runtime";
 import w from 'walax'
 import m from 'mithril'
 import { observable } from 'mobx'

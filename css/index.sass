@@ -1,0 +1,35 @@
+$mainfg : white
+$mainbg : gray
+$menu : gray
+$menupress : lightgray
+
+body
+    background: 
+        color: $mainbg
+    color: $mainfg
+    padding: 20px
+
+#menu
+    margin: 10px
+    clear: both
+
+    a
+        color: $menu
+        &:hover
+            color: white
+            border:
+                color: white
+        &:active
+            color: $menupress
+        border:
+            width: 1px 
+            color: $menu
+            style: solid
+            radius: 50%
+        text-decoration: none
+        padding: 25px
+        margin: 5px
+
+#page
+    margin: 20px
+    margin-top:50px
