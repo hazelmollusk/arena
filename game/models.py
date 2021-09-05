@@ -21,20 +21,35 @@ class ArenaModel(WalaxModel, UUIDPrimaryKeyMixin):
         abstract = True
 
 
+class Cell(ArenaModel):
+    game = models.ForeignKey('Game', on_delete=models.CASCADE)
+    x = models.PositiveSmallIntegerField()
+    y = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return '%s, %s' % (self.x, self.y)
+
+
 class Game(ArenaModel):
     name = models.CharField(max_length=32)
-    owner = models.ForeignKey(USER, on_delete=models.CASCADE, related_name="games")
+    owner = models.ForeignKey(
+        USER, on_delete=models.CASCADE, related_name="games")
     active = models.BooleanField(default=True)
     winner = models.ForeignKey(
         USER, on_delete=models.CASCADE, related_name="wins", null=True, blank=True
     )
     size = models.PositiveSmallIntegerField(default=20)
 
+    def generate_board(self):
+        for x in range(1, self.size):
+            for y in range(1, self.size):
+                c = Cell.objects.create(game=self, x=x, y=y)
 
-class Cell(ArenaModel):
-    game = models.ForeignKey(Game, on_delete=models.CASCADE)
-    x = models.PositiveSmallIntegerField()
-    y = models.PositiveSmallIntegerField()
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cells = Cell.objects.filter(game=self)
+        if not cells:
+            self.generate_board()
 
 
 class CreatureBase(ArenaModel):
@@ -48,7 +63,8 @@ class CreatureBase(ArenaModel):
 class Creature(ArenaModel):
     base = models.ForeignKey(CreatureBase, on_delete=models.CASCADE)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
-    user = models.ForeignKey(USER, on_delete=models.CASCADE, related_name="creatures")
+    user = models.ForeignKey(
+        USER, on_delete=models.CASCADE, related_name="creatures")
     hp = models.IntegerField(default=10)
     exp = models.IntegerField(default=0)
     x = models.PositiveSmallIntegerField()
