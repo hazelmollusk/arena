@@ -1,6 +1,6 @@
 import m from 'mithril'
 
-const GameList = {
+export const GameList = {
     games: [],
     user: false,
     oninit: function () {
@@ -24,6 +24,7 @@ const GameList = {
         this.game = game
         console.log('selectGame', game)
         m.route.set('/game')
+        w.arena.game = game
         m.redraw()
     },
     view: function () {
