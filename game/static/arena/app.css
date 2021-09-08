@@ -31,4 +31,9 @@ body {
   margin-top: 50px;
 }
 
+#board td {
+  width: 100px;
+  height: 100px;
+}
+
 /*# sourceMappingURL=app.css.map */

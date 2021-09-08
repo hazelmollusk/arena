@@ -6,30 +6,51 @@ import Menu from './menu'
 import Login from './login'
 
 export default class Arena extends w.cls.Control {
-    constructor() {
-        super()
+  constructor () {
+    super()
+    this._game = null
+    this._gameList = null
+    this._cells = []
+  }
+  start () {
+    document.body.innerHTML = '<div id="menu"></div> <div id="page"/>'
+    m.mount(document.getElementById('menu'), Menu)
+    m.route(document.getElementById('page'), '/home', {
+      '/home': Home,
+      '/game': Game,
+      '/login': Login
+    })
+  }
+  async getCurrentUser () {
+    return w.net.get(`${w.apiBase}auth/user/`).then(user => {
+      let obj = w.obj.receiveObject(w.obj.User, user)
+      return obj
+    })
+  }
+  async updateCells () {
+    if (this.game) {
+      w.obj.Cell.objects.filter({ game: this.game.id }).then(cells => {
+        this._cells = cells
+        m.redraw()
+      })
     }
-    start() {
-        document.body.innerHTML = '<div id="menu"></div> <div id="page"/>'
-        m.mount(document.getElementById('menu'), Menu)
-        m.route(document.getElementById('page'), '/home', {
-            '/home': Home,
-            '/game': Game,
-            '/login': Login
-        })
-    }
-    async getCurrentUser() {
-        return w.net.get(`${w.apiBase}auth/user/`).then(user => {
-            let obj = w.obj.receiveObject(w.obj.User, user)
-            return obj
-        })
-    }
-    get game () {
-        return this._game
-    }
-    set game (game) {
-        this._game = game
-        m.route.set('/game')
-    }
-    toString() { return 'Arena' }
+  }
+  get cells () {
+    return this._cells
+  }
+  get game () {
+    return this._game
+  }
+  set game (game) {
+    this._game = game
+    this.updateCells().then(x => {
+      m.route.set('/game')
+    })
+  }
+  get gameList () {
+    return this._gameList
+  }
+  toString () {
+    return 'Arena'
+  }
 }

@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.fields import UUIDField
 from walax.models import WalaxModel
+from walax.decorators import action
 import uuid
 from django.contrib.auth import get_user_model
 from datetime import timedelta
@@ -41,8 +42,8 @@ class Game(ArenaModel):
     size = models.PositiveSmallIntegerField(default=20)
 
     def generate_board(self):
-        for x in range(1, self.size):
-            for y in range(1, self.size):
+        for x in range(1, self.size + 1):
+            for y in range(1, self.size + 1):
                 c = Cell.objects.create(game=self, x=x, y=y)
 
     def save(self, *args, **kwargs):
@@ -50,6 +51,14 @@ class Game(ArenaModel):
         cells = Cell.objects.filter(game=self)
         if not cells:
             self.generate_board()
+
+    @action
+    def start(self, req):
+        pass
+
+    @action
+    def join(self, req):
+        pass
 
 
 class CreatureBase(ArenaModel):
@@ -81,8 +90,8 @@ class SpellBase(ArenaModel):
     exp = models.IntegerField(default=0)
     summon = models.BooleanField(default=False)
     summon_creature = models.ForeignKey(
-        Creature,
-        on_delete=models.CASCADE,
+        CreatureBase,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="summons",
