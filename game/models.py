@@ -5,7 +5,8 @@ from walax.decorators import action
 import uuid
 from django.contrib.auth import get_user_model
 from datetime import timedelta
-
+from rest_framework.response import Response
+from pprint import pp
 
 USER = get_user_model()
 
@@ -31,11 +32,20 @@ class Cell(ArenaModel):
         return '%s, %s' % (self.x, self.y)
 
 
+PHASES = (
+    (0, 'joining'),
+    (1, 'play'),
+    (2, 'ended')
+)
+
+
 class Game(ArenaModel):
     name = models.CharField(max_length=32)
     owner = models.ForeignKey(
         USER, on_delete=models.CASCADE, related_name="games")
     active = models.BooleanField(default=True)
+    phase = models.PositiveSmallIntegerField(default=0, choices=PHASES)
+    players = models.PositiveSmallIntegerField(default=4)
     winner = models.ForeignKey(
         USER, on_delete=models.CASCADE, related_name="wins", null=True, blank=True
     )
@@ -54,11 +64,18 @@ class Game(ArenaModel):
 
     @action
     def start(self, req):
-        pass
+        print('starting')
+        return 'start'
 
     @action
     def join(self, req):
-        pass
+        print('joining')
+        return 'join'
+
+    @action
+    def asdf(self, req):
+        print('asdf')
+        return 'asdf'
 
 
 class CreatureBase(ArenaModel):
