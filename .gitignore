@@ -3,6 +3,7 @@
 **node_modules/
 .vscode/
 **/*.code-workspace
+game/static/arena/app.*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
