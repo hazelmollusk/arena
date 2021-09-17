@@ -7,8 +7,16 @@ from django.contrib.auth import get_user_model
 from datetime import timedelta
 from rest_framework.response import Response
 from pprint import pp
+from random import randint
 
 USER = get_user_model()
+
+TILES = (
+    (0, 'Grass'),
+    (1, 'Plains'),
+    (2, 'Water'),
+    (3, 'Rock'),
+)
 
 
 class UUIDPrimaryKeyMixin(models.Model):
@@ -27,6 +35,8 @@ class Cell(ArenaModel):
     game = models.ForeignKey('Game', on_delete=models.CASCADE)
     x = models.PositiveSmallIntegerField()
     y = models.PositiveSmallIntegerField()
+    tile = models.PositiveSmallIntegerField(choices=TILES)
+    burnt = models.BooleanField(default=False)
 
     def __str__(self):
         return '%s, %s' % (self.x, self.y)
@@ -54,7 +64,10 @@ class Game(ArenaModel):
     def generate_board(self):
         for x in range(1, self.size + 1):
             for y in range(1, self.size + 1):
-                c = Cell.objects.create(game=self, x=x, y=y)
+                t = randint(0, len(TILES) * 2)
+                if t >= len(TILES):
+                    t = randint(0, 1)
+                c = Cell.objects.create(game=self, x=x, y=y, tile=t)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -62,17 +75,18 @@ class Game(ArenaModel):
         if not cells:
             self.generate_board()
 
-    @action
+    @ action
     def start(self, req):
         print('starting')
         return 'start'
 
-    @action
+    @ action
     def join(self, req):
         print('joining')
-        return 'join'
+        pp(req.user)
+        return 'joining'
 
-    @action
+    @ action
     def asdf(self, req):
         print('asdf')
         return 'asdf'

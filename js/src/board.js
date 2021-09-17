@@ -4,16 +4,12 @@ import w from 'walax'
 export default class Board {
   view () {
     if (w.arena.game) {
-      w.log.info('cells', w.arena.game)
+      w.log.info('rendering board for game', w.arena.game)
       let grid = {}
       for (let cell of w.arena.cells) {
-        let x = cell.x
-        let y = cell.y
-        grid[y] ||= {}
-        grid[y][x] = cell
-        console.debug('cell', x, y, cell)
+        grid[cell.y] ||= {}
+        grid[cell.y][cell.x] = cell
       }
-      console.debug('grid', grid)
       let rows = [],
         cols = [],
         table = null
@@ -21,8 +17,10 @@ export default class Board {
         for (let y = 1; y <= w.arena.game.size; y++) {
           cols = []
           for (let x = 1; x <= w.arena.game.size; x++) {
-            cols.push(m('td', ['cell', x, y].join(', ')))
-            console.log(x, y, grid[x] ? grid[x][y] : undefined)
+            let tileCls = ['tile']
+            tileCls.push(grid[y][x].tile.toLowerCase())
+            cols.push(m('td.' + tileCls.join('-')))
+            console.log(x, y, grid[y][x].tile)
           }
           rows.push(m('tr', cols))
         }

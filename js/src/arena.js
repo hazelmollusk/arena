@@ -20,6 +20,10 @@ export default class Arena extends w.cls.Control {
       '/game': Game,
       '/login': Login
     })
+    let gameid = w.auth.storage.getItem('gameid')
+    if (gameid) {
+      this.game = Game.objects.get({ id: gameid })
+    }
   }
   async getCurrentUser () {
     return w.net.get(`${w.apiBase}auth/user/`).then(user => {
@@ -42,6 +46,7 @@ export default class Arena extends w.cls.Control {
     return this._game
   }
   set game (game) {
+    w.auth.storage.setItem('gameid', game.id)
     this._game = game
     this.updateCells().then(x => {
       m.route.set('/game')

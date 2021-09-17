@@ -31,9 +31,25 @@ body {
   margin-top: 50px;
 }
 
-#board td {
+.board td {
   width: 100px;
   height: 100px;
+}
+
+.tile-plains {
+  background-image: url("/static/arena/images/tile/plains.png");
+}
+
+.tile-grass {
+  background-image: url("/static/arena/images/tile/grass.png");
+}
+
+.tile-water {
+  background-image: url("/static/arena/images/tile/water.png");
+}
+
+.tile-rock {
+  background-image: url("/static/arena/images/tile/rock.png");
 }
 
 /*# sourceMappingURL=app.css.map */
