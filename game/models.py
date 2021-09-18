@@ -61,13 +61,48 @@ class Game(ArenaModel):
     )
     size = models.PositiveSmallIntegerField(default=20)
 
+    def get_tree(self):
+        base, isnew = CreatureBase.objects.get_or_create(name='Tree')
+        base.name = 'Tree'
+        base.exp = 1
+        base.hp = 2
+        base.move = 0
+        base.save()
+        tree = Creature.objects.create(base=base, hp=base.hp, game=self)
+        return tree
+
+    def get_mirk(self):
+        base, isnew = CreatureBase.objects.get_or_create(name='Mirkwood')
+        base.name = 'Mirkwood'
+        base.exp = 1
+        base.hp = 2
+        base.move = 0
+        base.save()
+        tree = Creature.objects.create(base=base, hp=base.hp, game=self)
+        return tree
+
     def generate_board(self):
+        grid = {}
         for x in range(1, self.size + 1):
             for y in range(1, self.size + 1):
                 t = randint(0, len(TILES) * 2)
                 if t >= len(TILES):
                     t = randint(0, 1)
-                c = Cell.objects.create(game=self, x=x, y=y, tile=t)
+                if ((x in [2, self.size - 1]) and
+                        (y in [2, self.size - 1])):
+                    t = 1
+                    pp(['wizard square', x, y, [2, self.size-1]])
+                # todo: this works only for <=4 players
+                pp([x, y, t])
+                if not y in grid:
+                    grid[y] = {}
+                grid[y][x] = Cell.objects.create(game=self, x=x, y=y, tile=t)
+        for i in range(1, randint(1, self.size)):
+            tree = self.get_tree()
+            tree.x = randint(1, self.size)
+            tree.y = randint(1, self.size)
+            if grid[tree.y][tree.x].tile < 2:
+                tree.save()
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -75,21 +110,9 @@ class Game(ArenaModel):
         if not cells:
             self.generate_board()
 
-    @ action
-    def start(self, req):
-        print('starting')
-        return 'start'
-
-    @ action
-    def join(self, req):
-        print('joining')
-        pp(req.user)
-        return 'joining'
-
-    @ action
-    def asdf(self, req):
-        print('asdf')
-        return 'asdf'
+    @action
+    def go(self, req):
+        return Response('go')
 
 
 class CreatureBase(ArenaModel):
@@ -98,17 +121,20 @@ class CreatureBase(ArenaModel):
     hp = models.IntegerField(default=10)
     alignment = models.IntegerField(default=50)
     damage = models.IntegerField(default=1)
+    move = models.IntegerField(default=2)
 
 
 class Creature(ArenaModel):
     base = models.ForeignKey(CreatureBase, on_delete=models.CASCADE)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
-    user = models.ForeignKey(
-        USER, on_delete=models.CASCADE, related_name="creatures")
+    user = models.ForeignKey(USER, null=True, blank=True,
+                             on_delete=models.CASCADE,
+                             related_name="creatures")
     hp = models.IntegerField(default=10)
+    move = models.IntegerField(default=2)
     exp = models.IntegerField(default=0)
-    x = models.PositiveSmallIntegerField()
-    y = models.PositiveSmallIntegerField()
+    x = models.PositiveSmallIntegerField(default=0)
+    y = models.PositiveSmallIntegerField(default=0)
 
 
 class Wizard(Creature):
