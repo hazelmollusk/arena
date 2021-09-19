@@ -1,15 +1,13 @@
 import m from 'mithril'
 import w from 'walax'
+import Creature from './creature'
 
-export default class Board {
-  view () {
+export default class Board extends w.cls.Entity {
+  view (vnode) {
     if (w.arena.game) {
-      w.log.info('rendering board for game', w.arena.game)
-      let grid = {}
-      for (let cell of w.arena.cells) {
-        grid[cell.y] ||= {}
-        grid[cell.y][cell.x] = cell
-      }
+      let grid = w.arena.grid
+      let creatures = w.arena.creatureGrid
+      this.d('board', w.arena.game, { grid, creatures })
       let rows = [],
         cols = [],
         table = null
@@ -18,15 +16,22 @@ export default class Board {
           cols = []
           for (let x = 1; x <= w.arena.game.size; x++) {
             let tileCls = ['tile']
+            let tileContent = `${x}/${y}`
+            if (creatures[y] && creatures[y][x]) {
+              this.d('creature found', creatures[y][x])
+            }
+            let tileId = ['tile', `${x}`, `${y}`].join('-')
             tileCls.push(grid[y][x].tile.toLowerCase())
-            cols.push(m('td.' + tileCls.join('-')))
+            cols.push(
+              m('td#' + tileId + '.' + tileCls.join('-'), {}, tileContent)
+            )
             console.log(x, y, grid[y][x].tile)
           }
           rows.push(m('tr', cols))
         }
         table = m('table.board', rows)
       } catch (err) {
-        w.log.error('loading cells', err)
+        this.e('loading cells', err)
       }
       return m('.boardPage', [m('h1', 'got cells'), table])
     } else {

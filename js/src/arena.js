@@ -11,6 +11,7 @@ export default class Arena extends w.cls.Control {
     this._game = null
     this._gameList = null
     this._cells = []
+    this._creatures = []
   }
   start () {
     document.body.innerHTML = '<div id="menu"></div> <div id="page"/>'
@@ -33,14 +34,39 @@ export default class Arena extends w.cls.Control {
   }
   async updateCells () {
     if (this.game) {
-      w.obj.Cell.objects.filter({ game: this.game.id }).then(cells => {
+      return w.obj.Cell.objects.filter({ game: this.game.id }).then(cells => {
         this._cells = cells
-        m.redraw()
       })
     }
+    return undefined
+  }
+  async updateCreatures () {
+    if (this.game) {
+      return w.obj.Creature.objects.filter({ game: this.game.id }).then(c => {
+        this._creatures = c
+      })
+    }
+    return undefined
   }
   get cells () {
     return this._cells
+  }
+  get grid () {
+    let grid = {}
+    for (let cell of this.cells) {
+      grid[cell.y] ||= {}
+      grid[cell.y][cell.x] = cell
+    }
+    return grid
+  }
+  get creatureGrid () {
+    let grid = {}
+    if (this.creatures)
+      for (let cell of this.creatures) {
+        grid[cell.y] ||= {}
+        grid[cell.y][cell.x] = cell
+      }
+    return grid
   }
   get game () {
     return this._game
@@ -48,12 +74,23 @@ export default class Arena extends w.cls.Control {
   set game (game) {
     w.auth.storage.setItem('gameid', game.id)
     this._game = game
-    this.updateCells().then(x => {
+    this.refresh().then(x => {
       m.route.set('/game')
     })
   }
   get gameList () {
     return this._gameList
+  }
+  async refresh () {
+    if (this._game) {
+      w.obj.Game.objects.one({ id: this._game.id }).then(game => {
+        this.d('refreshing', game, this._game)
+        // this._game = game
+        let cells = this.updateCells()
+        let creatures = this.updateCreatures()
+        return Promise.all([cells, creatures])
+      })
+    }
   }
   toString () {
     return 'Arena'
