@@ -25,7 +25,6 @@ export default class Board extends w.cls.Entity {
             cols.push(
               m('td#' + tileId + '.' + tileCls.join('-'), {}, tileContent)
             )
-            console.log(x, y, grid[y][x].tile)
           }
           rows.push(m('tr', cols))
         }
