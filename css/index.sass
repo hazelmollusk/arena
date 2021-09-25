@@ -12,7 +12,8 @@ body
 #menu
     margin: 10px
     clear: both
-
+    font-family: 'Are You Serious', cursive
+    font-size:2em
     a
         color: $menu
         &:hover
@@ -22,7 +23,7 @@ body
         &:active
             color: $menupress
         border:
-            width: 1px 
+            width: 3px 
             color: $menu
             style: solid
             radius: 50%
@@ -33,6 +34,17 @@ body
 #page
     margin: 20px
     margin-top:50px
+
+.gameList td a
+    color: $menu
+    &:hover
+        color: white
+        border:
+            color: white
+    &:active
+        color: $menupress
+    &:visited
+        color: $menu
 
 .board td 
     width: 100px
@@ -50,3 +62,4 @@ body
 
 .tile-rock
     background-image: url('/static/arena/images/tile/rock.png')
+

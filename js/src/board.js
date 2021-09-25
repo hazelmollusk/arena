@@ -1,13 +1,18 @@
 import m from 'mithril'
 import w from 'walax'
 import Creature from './creature'
+import Controls from './controls'
+import Side from './side'
 
 export default class Board extends w.cls.Entity {
+  toString () {
+    return 'Board'
+  }
   view (vnode) {
     if (w.arena.game) {
       let grid = w.arena.grid
       let creatures = w.arena.creatureGrid
-      this.d('board', w.arena.game, { grid, creatures })
+      this.d(w.arena.game, { grid, creatures })
       let rows = [],
         cols = [],
         table = null
@@ -19,11 +24,17 @@ export default class Board extends w.cls.Entity {
             let tileContent = `${x}/${y}`
             if (creatures[y] && creatures[y][x]) {
               this.d('creature found', creatures[y][x])
+              tileContent = m(Creature, { creature: creatures[y][x] })
             }
             let tileId = ['tile', `${x}`, `${y}`].join('-')
             tileCls.push(grid[y][x].tile.toLowerCase())
             cols.push(
               m('td#' + tileId + '.' + tileCls.join('-'), {}, tileContent)
+            )
+          }
+          if (y == 1) {
+            cols.push(
+              m('td#side', { rowspan: w.arena.game.size, valign: top }, m(Side))
             )
           }
           rows.push(m('tr', cols))
@@ -32,7 +43,7 @@ export default class Board extends w.cls.Entity {
       } catch (err) {
         this.e('loading cells', err)
       }
-      return m('.boardPage', [m('h1', 'got cells'), table])
+      return m('.boardPage', [m(Controls), m('hr'), table])
     } else {
       return m('h1', 'no game selected')
     }

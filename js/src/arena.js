@@ -13,6 +13,7 @@ export default class Arena extends w.cls.Control {
     this._cells = []
     this._creatures = []
     this._user = null
+    this._selected = null
   }
   start () {
     document.body.innerHTML = '<div id="menu"></div> <div id="page"/>'
@@ -22,14 +23,23 @@ export default class Arena extends w.cls.Control {
       '/game': Game,
       '/login': Login
     })
-    let gameid = w.auth.storage.getItem('gameid')
-    if (gameid) {
-      this.game = Game.objects.get({ id: gameid })
+    this.updateGameList().then(x => {
+      this.d('updated game list, redrawing', x)
+      m.redraw()
+    })
+  }
+  initialize () {
+    if (w.auth.storage.getItem('gameid', false)) {
+      this.gameId = w.auth.storage.getItem('gameid')
+      w.obj.Game.objects.one(g => {
+        this.game = g
+      })
     }
   }
   async getCurrentUser () {
     return w.net.get(`${w.apiBase}auth/user/`).then(user => {
       let obj = w.obj.receiveObject(w.obj.User, user)
+      this._user = obj
       return obj
     })
   }
@@ -49,9 +59,9 @@ export default class Arena extends w.cls.Control {
       })
     }
   }
-  updateGameList () {
+  async updateGameList () {
     this.i('refreshing game list')
-    w.obj.Game.objects.all().then(x => {
+    return w.obj.Game.objects.all().then(x => {
       this._games = []
       x.forEach(g => {
         this._games.push(g)
@@ -77,6 +87,13 @@ export default class Arena extends w.cls.Control {
   get cells () {
     return this._cells
   }
+  get selected () {
+    return this._selected
+  }
+  set selected (val) {
+    this._selected = val
+    return val
+  }
   get grid () {
     let grid = {}
     for (let cell of this.cells) {
@@ -97,11 +114,23 @@ export default class Arena extends w.cls.Control {
   get game () {
     return this._game
   }
+  get creatures () {
+    return this._creatures
+  }
   set game (game) {
     w.auth.storage.setItem('gameid', game.id)
     this._game = game
     this.refresh().then(x => {
       m.route.set('/game')
+    })
+  }
+  get gameId () {
+    if (this.game) return this.game.id
+    return ''
+  }
+  set gameId (gid) {
+    w.obj.Game.objects.one((id = gid)).then(g => {
+      this.game = g
     })
   }
   get gameList () {
