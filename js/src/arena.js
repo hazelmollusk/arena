@@ -23,16 +23,16 @@ export default class Arena extends w.cls.Control {
       '/game': Game,
       '/login': Login
     })
-    this.updateGameList().then(x => {
-      this.d('updated game list, redrawing', x)
-      m.redraw()
-    })
   }
-  initialize () {
+  loadGame () {
     if (w.auth.storage.getItem('gameid', false)) {
-      this.gameId = w.auth.storage.getItem('gameid')
-      w.obj.Game.objects.one(g => {
-        this.game = g
+      let gameId = w.auth.storage.getItem('gameid')
+      w.sleep(1000).then(x => {
+        w.obj.Game.objects.one({ id: gameId }).then(g => {
+          //fixmea
+          alert('asdf')
+          this.game = g
+        })
       })
     }
   }

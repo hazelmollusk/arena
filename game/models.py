@@ -56,7 +56,7 @@ class Game(ArenaModel):
     active = models.BooleanField(default=True)
     phase = models.PositiveSmallIntegerField(default=0, choices=PHASES)
     max_players = models.PositiveSmallIntegerField(default=4)
-    players = models.ManyToManyField(USER)
+    players = models.ManyToManyField(USER, blank=True)
     winner = models.ForeignKey(
         USER, on_delete=models.CASCADE, related_name="wins", null=True, blank=True
     )
@@ -75,7 +75,7 @@ class Game(ArenaModel):
     def get_mirk(self):
         base, isnew = CreatureBase.objects.get_or_create(name='Mirkwood')
         base.name = 'Mirkwood'
-        base.exp = 1
+        base.exp = 5
         base.hp = 2
         base.move = 0
         base.save()
@@ -93,13 +93,11 @@ class Game(ArenaModel):
                 if ((x in [2, self.size - 1]) and
                         (y in [2, self.size - 1])):
                     t = 1
-                    pp(['wizard square', x, y, [2, self.size - 1]])
                 # todo: this works only for <=4 players
-                pp([x, y, t])
                 if not y in grid:
                     grid[y] = {}
                 grid[y][x] = Cell.objects.create(game=self, x=x, y=y, tile=t)
-        for i in range(1, randint(int(self.size / 10), self.size)):
+        for i in range(1, randint(int(self.size), self.size)):
             tree = self.get_tree() if randint(0, 2) else self.get_mirk()
             tree.x = randint(1, self.size)
             tree.y = randint(1, self.size)
@@ -134,6 +132,7 @@ class CreatureBase(ArenaModel):
     alignment = models.IntegerField(default=50)
     damage = models.IntegerField(default=1)
     move = models.IntegerField(default=2)
+    icon = models.CharField(max_length=20)
 
 
 class Creature(ArenaModel):
