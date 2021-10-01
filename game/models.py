@@ -52,11 +52,12 @@ PHASES = (
 class Game(ArenaModel):
     name = models.CharField(max_length=32)
     owner = models.ForeignKey(
-        USER, on_delete=models.CASCADE, related_name="games")
+        USER, on_delete=models.CASCADE, related_name="arena_games_owned")
     active = models.BooleanField(default=True)
     phase = models.PositiveSmallIntegerField(default=0, choices=PHASES)
     max_players = models.PositiveSmallIntegerField(default=4)
-    players = models.ManyToManyField(USER, blank=True)
+    players = models.ManyToManyField(
+        USER, blank=True, through='GamePlayer', related_name='arena_games')
     winner = models.ForeignKey(
         USER, on_delete=models.CASCADE, related_name="wins", null=True, blank=True
     )
@@ -81,6 +82,18 @@ class Game(ArenaModel):
         base.save()
         tree = Creature.objects.create(base=base, hp=base.hp, game=self)
         return tree
+
+    def get_wiz(self):
+        base, isnew = CreatureBase.objects.get_or_create(name='Wizard')
+        base.name = 'Wizard'
+        base.exp = 0
+        base.hp = 3
+        base.move = 2
+        base.save()
+        wiz_name = 'Iskander'
+        wiz = Wizard.objects.create(
+            base=base, hp=base.hp, game=self, name=wiz_name)
+        return wiz
 
     def generate_board(self):
         grid = {}
@@ -123,6 +136,11 @@ class Game(ArenaModel):
         else:
             print('game is full!')
         return 'go'
+
+
+class GamePlayer(models.Model):
+    user = models.ForeignKey(USER, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
 
 
 class CreatureBase(ArenaModel):

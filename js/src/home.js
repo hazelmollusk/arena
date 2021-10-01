@@ -2,14 +2,22 @@ import m from 'mithril'
 import w from 'walax'
 import GameList from './gamelist'
 
-export default class Home {
+export default class Home extends w.cls.Entity {
   oninit () {
-    Promise.all([w.arena.updateUser(), w.arena.updateGameList()])
+    Promise.all([w.arena.getCurrentUser(), w.arena.updateGameList()])
+  }
+  toString () {
+    return 'Home'
   }
   view () {
     return m('.home', [
       m('input#gameName'),
-      m('input#gameSize', { value: 40 }),
+      m(
+        'select#gameSize',
+        [5, 10, 15, 20, 30, 40].map(x => {
+          return m('option', { value: x }, x)
+        })
+      ),
       m('input#gameSubmit', {
         type: 'button',
         value: 'Create game',
@@ -19,12 +27,12 @@ export default class Home {
             let user = w.arena.user
             let size = document.getElementById('gameSize').value
             let game = new w.obj.Game({ name, owner: user.id, size })
-            w.log.info('saving new game', game)
+            this.d('saving new game', game)
             game
               .save()
               .then(x => {
-                w.arena.game = game
-                m.route.set('/game')
+                //w.arena._game = game
+                //m.route.set('/game')
               })
               .catch(err => {
                 w.log.error('ERROR SAVING', { game, err })

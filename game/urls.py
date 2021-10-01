@@ -18,10 +18,10 @@ router = WalaxRouter()
 for model in [
     USER,
     Game,
+    GamePlayer,
     Cell,
     CreatureBase,
     Creature,
-    Wizard,
     Spell,
     SpellBase,
 ]:

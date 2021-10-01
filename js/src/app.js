@@ -7,7 +7,11 @@ import Arena from './arena'
 let url = '/api/'
 let prop = 'arena'
 
-Promise.all([w.load(prop, url)])
-w.addPlugin('arena', Arena)
-console.log('-----------------------------ARENA---------------------------')
-w.arena.start()
+w.addPlugin(Arena)
+
+Promise.resolve(w.load(prop, url)).then(x => {
+  console.log('-----------------------------ARENA---------------------------')
+  w.sleep(500).then(x => {
+    w.arena.start()
+  })
+})
