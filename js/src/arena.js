@@ -131,12 +131,14 @@ export default class Arena extends w.cls.Control {
   }
 
   set game (game) {
-    w.auth.storage.setItem('gameid', game.id)
-    if (game) this._game = game
-    this.refresh().then(x => {
-      this.d('setting game', game, x)
-      m.route.set('/game')
-    })
+    this.d('SETTING GAME')
+    this._game = game
+    if (game) {
+      w.auth.storage.setItem('gameid', game.id)
+      this.refresh().then(x => {
+        m.route.set('/game')
+      })
+    }
   }
 
   get gameId () {
@@ -162,13 +164,14 @@ export default class Arena extends w.cls.Control {
     let user = this.getCurrentUser()
 
     if (this._game) {
-      let game = await w.obj.Game.objects.one({ id: this._game.id })
-      this.d('refreshing game', game, this._game)
-      this._game = game
+      gamef = await w.obj.Game.objects.one({ id: this._game.id })
+      this.d('refreshing game', this._game)
       cells = this.updateCells()
     }
 
-    return Promise.all([gamef, user, cells, creatures, games])
+    let x = Promise.all([gamef, user, cells, creatures, games])
+    m.redraw()
+    return x
   }
   toString () {
     return 'Arena'

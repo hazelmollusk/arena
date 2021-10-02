@@ -5,15 +5,16 @@ const joinButton = m(
   'button#join',
   {
     onclick: () => {
+      alert('asdf')
       if (w.arena.game.phase == 0) {
         w.arena.getCurrentUser().then(x => {
           w.log.info('join', w.arena.user)
           if (w.arena.user) {
             w.arena.game.join()
           }
-          return false
+          return true
         })
-        return false
+        return true
       }
     }
   },
