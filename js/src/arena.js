@@ -14,6 +14,7 @@ export default class Arena extends w.cls.Control {
     this._creatures = []
     this._user = null
     this._selected = null
+    this._players = []
   }
 
   start () {
@@ -80,6 +81,23 @@ export default class Arena extends w.cls.Control {
       })
     }
     return undefined
+  }
+
+  async updatePlayers () {
+    this._players = []
+    if (this.game) {
+      w.obj.GamePlayer.objects.filter({ game: this.game.id }).then(gp => {
+        this.d('updatePlayers', gp)
+        gp.forEach(gpx => {
+          this.d('updatePlayers', gp, gpx)
+          return w.obj.User.objects.filter({ id: gpx.user }).then(us => {
+            us.forEach(u => {
+              this._players.push(u)
+            })
+          })
+        })
+      })
+    }
   }
 
   get user () {
@@ -156,20 +174,26 @@ export default class Arena extends w.cls.Control {
     return this._gameList
   }
 
+  get players () {
+    return this._players
+  }
+
   async refresh () {
     let creatures = this.updateCreatures()
     let games = this.updateGameList()
     let cells = async x => true
     let gamef = async x => true
+    let players = async x => true
     let user = this.getCurrentUser()
 
     if (this._game) {
       gamef = await w.obj.Game.objects.one({ id: this._game.id })
       this.d('refreshing game', this._game)
       cells = this.updateCells()
+      players = this.updatePlayers()
     }
 
-    let x = Promise.all([gamef, user, cells, creatures, games])
+    let x = Promise.all([gamef, user, cells, creatures, games, players])
     m.redraw()
     return x
   }
