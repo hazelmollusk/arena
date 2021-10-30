@@ -44,6 +44,7 @@ const endButton = () =>
     value: 'End Turn',
     onclick: () => {
       w.arena.game.endturn().then(x => {
+        w.log.debug('ending turn', x)
         w.arena.refresh()
       })
       return true
@@ -75,7 +76,7 @@ export default class Controls extends w.cls.Entity {
           }
           break
         case 'play':
-          if (w.arena.game.owner == w.arena.user.id) {
+          if (w.arena.game.current == w.arena.user.id) {
             controls.push(endButton())
           }
           break

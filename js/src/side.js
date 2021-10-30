@@ -23,8 +23,8 @@ export default class Side extends w.cls.Entity {
             m('.creatureMoves', ['Moves: ', creature.moves, '/', base.moves])
           )
           this.d('creature actions', { creature, user: w.arena.user })
-          if (creature.user == w.arena.user.id) {
-            el.push(m('.creatureActionLabel', 'Actions'))
+          if (creature.user == w.arena.user.id && creature.moves > 0) {
+            el.push(m('hr.creatureActions'))
             let moveRows = []
             let moveLabels = ['UL', 'U', 'UR', 'L', '', 'R', 'DL', 'D', 'DR']
             for (let y of [-1, 0, 1]) {

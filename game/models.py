@@ -168,18 +168,27 @@ class Game(ArenaModel):
         self.phase = 1
         self.save()
         print('game is started!')
-        return 'xxx'
+        return 'started'
+
+    def set_current(self, player):
+        pp(['setting player', player])
+        self.current = player
+        for creature in Creature.objects.filter(user=player, game=self, alive=True):
+            creature.moves = creature.base.moves
+            pp(['resetting moves', creature, creature.moves])
+            creature.save()
 
     @action
     def endturn(self, req):
         if req.user != self.current:
+            pp([req.user, self.current])
             return 'not your turn'
         players = self.players.all()
         nextup = 0
         for i in range(0, len(players)):
             if players[i] == self.current:
                 nextup = 0 if (i == len(players)-1) else i+1
-        self.current = players[nextup]
+        self.set_current(players[nextup])
         pp(['ending turn', self.current])
         self.save()
 
@@ -226,6 +235,7 @@ class Creature(ArenaModel):
     moves = models.IntegerField(default=0)
     x = models.PositiveSmallIntegerField(default=0)
     y = models.PositiveSmallIntegerField(default=0)
+    alive = models.BooleanField(default=True)
 
     def __str__(self):
         return 'Creature: %s' % self.base.name
