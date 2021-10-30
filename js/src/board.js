@@ -34,7 +34,11 @@ export default class Board extends w.cls.Entity {
           }
           if (y == 1) {
             cols.push(
-              m('td#side', { rowspan: w.arena.game.size, valign: top }, m(Side))
+              m(
+                'td#side',
+                { rowspan: w.arena.game.size, valign: 'top' },
+                m(Side)
+              )
             )
           }
           rows.push(m('tr', cols))

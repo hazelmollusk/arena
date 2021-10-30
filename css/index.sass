@@ -47,13 +47,31 @@ body
         color: $menu
 
 .board td 
-    width: 100px
-    height: 100px
+    width: 80px
+    height: 80px
     border: none
+
+a.creature
+    display: block
+    height:100%
+    width:100%
+    border: 1px solid transparent 
+    &:hover
+        border: 1px solid #aaa
+
+a.creature.selected
+    border: 1px solid blue
+
+a.creature img
+    width: 80px
+    height: 80px
 
 h1, h2, table.gameList td
     font-family: 'Are You Serious', cursive
     font-size: 2em
+
+.side
+    min-width:3em
 
 .tile-plains
     background-image: url('/static/arena/images/tile/plains.png')
@@ -67,3 +85,19 @@ h1, h2, table.gameList td
 .tile-rock
     background-image: url('/static/arena/images/tile/rock.png')
 
+table.moveTable
+    border: none
+
+td.moveDirection 
+    border: none
+    padding: 3px
+    height: 1%
+    width: 1%
+    white-space: nowrap
+
+td.moveDirection a img
+    border: 1px solid transparent 
+    &:hover
+        border: 1px solid #953
+        border-radius: 20px
+        background-color: #555

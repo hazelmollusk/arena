@@ -179,23 +179,30 @@ export default class Arena extends w.cls.Control {
   }
 
   async refresh () {
-    let creatures = this.updateCreatures()
-    let games = this.updateGameList()
-    let cells = async x => true
-    let gamef = async x => true
-    let players = async x => true
-    let user = this.getCurrentUser()
+    let promises = []
+    promises.push(this.updateCreatures())
+    promises.push(this.updateGameList())
+    promises.push(this.getCurrentUser())
 
     if (this._game) {
-      gamef = await w.obj.Game.objects.one({ id: this._game.id })
+      promises.push(w.obj.Game.objects.one({ id: this._game.id }))
       this.d('refreshing game', this._game)
-      cells = this.updateCells()
-      players = this.updatePlayers()
+      promises.push(this.updateCells())
+      promises.push(this.updatePlayers())
     }
 
-    let x = Promise.all([gamef, user, cells, creatures, games, players])
-    m.redraw()
+    let x = Promise.all(promises)
     return x
+  }
+  click (creature) {
+    // TODO handle target selection if needed
+    if (this.selected == creature) {
+      this.selected = null
+    } else {
+      this.selected = creature
+    }
+    this.refresh()
+    w.log.info('click', creature)
   }
   toString () {
     return 'Arena'

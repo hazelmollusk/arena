@@ -48,12 +48,13 @@ PHASES = (
     (2, 'ended')
 )
 
+WIZ_NAMES = ('Iskander', 'Crowley')
+
 
 class Game(ArenaModel):
     name = models.CharField(max_length=32)
     owner = models.ForeignKey(
         USER, on_delete=models.CASCADE, related_name="arena_games_owned")
-    active = models.BooleanField(default=True)
     phase = models.PositiveSmallIntegerField(default=0, choices=PHASES)
     max_players = models.PositiveSmallIntegerField(default=4)
     players = models.ManyToManyField(
@@ -61,14 +62,22 @@ class Game(ArenaModel):
     winner = models.ForeignKey(
         USER, on_delete=models.CASCADE, related_name="wins", null=True, blank=True
     )
+    current = models.ForeignKey(
+        USER, on_delete=models.CASCADE, related_name="turns", null=True, blank=True
+    )
+
     size = models.PositiveSmallIntegerField(default=20)
+
+    def __str__(self):
+        return 'Game: %s' % self.name
 
     def get_tree(self):
         base, isnew = CreatureBase.objects.get_or_create(name='Tree')
         base.name = 'Tree'
         base.exp = 1
         base.hp = 2
-        base.move = 0
+        base.moves = 0
+        base.icon = 'tree'
         base.save()
         tree = Creature.objects.create(base=base, hp=base.hp, game=self)
         return tree
@@ -78,21 +87,29 @@ class Game(ArenaModel):
         base.name = 'Mirkwood'
         base.exp = 5
         base.hp = 2
-        base.move = 0
+        base.moves = 0
+        base.icon = 'mirkwood'
         base.save()
         tree = Creature.objects.create(base=base, hp=base.hp, game=self)
         return tree
 
-    def get_wiz(self):
+    def get_wiz(self, x, y, user):
         base, isnew = CreatureBase.objects.get_or_create(name='Wizard')
         base.name = 'Wizard'
         base.exp = 0
         base.hp = 3
-        base.move = 2
+        base.moves = 2
+        base.icon = 'wizard'
         base.save()
-        wiz_name = 'Iskander'
+        wiz_name = WIZ_NAMES[randint(0, len(WIZ_NAMES)-1)]
         wiz = Wizard.objects.create(
-            base=base, hp=base.hp, game=self, name=wiz_name)
+            base=base, hp=base.hp, game=self, name=wiz_name, x=x, y=y, user=user, moves=base.moves)
+        spells = SpellBase.objects.all()
+        if len(spells):
+            for i in range(0, 30):
+                base = spells[randint(0, len(spells)-1)]
+                spell = Spell.objects.create(base=base, creature=wiz)
+
         return wiz
 
     def generate_board(self):
@@ -110,7 +127,7 @@ class Game(ArenaModel):
                 if not y in grid:
                     grid[y] = {}
                 grid[y][x] = Cell.objects.create(game=self, x=x, y=y, tile=t)
-        for i in range(1, randint(int(self.size), self.size)):
+        for i in range(1, randint(0, self.size)):
             tree = self.get_tree() if randint(0, 2) else self.get_mirk()
             tree.x = randint(1, self.size)
             tree.y = randint(1, self.size)
@@ -137,6 +154,42 @@ class Game(ArenaModel):
             print('game is full!')
         return 'go'
 
+    @action
+    def start(self, req):
+        players = self.players.all()
+        # fixme add more than four
+        positions = [
+            (2, 2), (self.size-1, self.size-1), (2, self.size-1), (self.size-1, 2)
+        ]
+        for player in players:
+            pos = positions.pop(0)
+            wiz = self.get_wiz(*pos, user=player)
+            pp([wiz, pos])
+        self.phase = 1
+        self.save()
+        print('game is started!')
+        return 'xxx'
+
+    @action
+    def endturn(self, req):
+        if req.user != self.current:
+            return 'not your turn'
+        players = self.players.all()
+        nextup = 0
+        for i in range(0, len(players)):
+            if players[i] == self.current:
+                nextup = 0 if (i == len(players)-1) else i+1
+        self.current = players[nextup]
+        pp(['ending turn', self.current])
+        self.save()
+
+        creatures = Creature.objects.filter(game=self, user=self.current)
+        for creature in creatures:
+            pp(['resetting moves', creature, creature.base.moves])
+            creature.moves = creature.base.moves
+        pp(['end turn, next up', self, self.current])
+        return 'next'
+
 
 class GamePlayer(models.Model):
     user = models.ForeignKey(USER, on_delete=models.CASCADE)
@@ -145,12 +198,22 @@ class GamePlayer(models.Model):
 
 class CreatureBase(ArenaModel):
     name = models.CharField(max_length=32)
-    exp = models.IntegerField(default=0)
     hp = models.IntegerField(default=10)
     alignment = models.IntegerField(default=50)
     damage = models.IntegerField(default=1)
-    move = models.IntegerField(default=2)
+    moves = models.IntegerField(default=2)
     icon = models.CharField(max_length=20)
+    spells = models.ManyToManyField('SpellBase', null=True, blank=True)
+
+    def __str__(self):
+        return 'CreatureBase: %s' % self.name
+
+    def get_creature(self):
+        creature = Creature()
+        creature.base = self
+        creature.hp = self.hp
+        creature.moves = self.moves
+        return creature
 
 
 class Creature(ArenaModel):
@@ -160,10 +223,49 @@ class Creature(ArenaModel):
                              on_delete=models.CASCADE,
                              related_name="creatures")
     hp = models.IntegerField(default=10)
-    move = models.IntegerField(default=2)
-    exp = models.IntegerField(default=0)
+    moves = models.IntegerField(default=0)
     x = models.PositiveSmallIntegerField(default=0)
     y = models.PositiveSmallIntegerField(default=0)
+
+    def __str__(self):
+        return 'Creature: %s' % self.base.name
+
+    @action
+    def move(self, req):
+        xx, yy = int(req.query_params['x']), int(req.query_params['y'])
+        newx, newy = self.x + xx, self.y + yy
+        game = self.game
+
+        pp(['moving to', xx, newx, yy, newy])
+        if ((abs(xx) > 1) or (abs(yy) > 1)):
+            pp(['move : invalid move', xx, yy])
+            return 'no'
+        if newx < 1 or newy < 1:
+            pp('move : off grid')
+            return 'no'
+        if newx > game.size or newy > game.size:
+            pp('move : off grid')
+            return 'no'
+        # what about tiles that take 2 moves TODO
+        if not self.moves:
+            pp('move : no moves')
+            return 'no'
+        cells = Cell.objects.filter(game=game)
+        creatures = Creature.objects.filter(game=game)
+        safe = False
+        # check the square for creature TODO FIXME
+        for cell in cells:
+            if cell.x == newx and cell.y == newy:
+                if cell.tile < 2:
+                    safe = True
+        if not safe:
+            print('move : not safe square')
+            return 'no'
+        self.x, self.y = newx, newy
+        self.moves -= 1
+        self.save()
+        print('move : moved!')
+        return 'yes'
 
 
 class Wizard(Creature):
@@ -173,15 +275,16 @@ class Wizard(Creature):
 class SpellBase(ArenaModel):
     name = models.CharField(max_length=32)
     alignment = models.IntegerField(default=0)
-    exp = models.IntegerField(default=0)
-    summon = models.BooleanField(default=False)
-    summon_creature = models.ForeignKey(
+    summons = models.ForeignKey(
         CreatureBase,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="summons",
     )
+
+    def __str__(self):
+        return 'SpellBase: %s' % self.name
 
 
 class Spell(ArenaModel):
@@ -190,3 +293,6 @@ class Spell(ArenaModel):
     creature = models.ForeignKey(
         Creature, on_delete=models.CASCADE, related_name="spells"
     )
+
+    def __str__(self):
+        return 'Spell: %s/%s' % (self.base.name, self.creature)

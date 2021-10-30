@@ -22,7 +22,20 @@ export default class GameList extends w.cls.Entity {
               g.name
             )
           ),
-          m('td', g.size)
+          m('td', g.size),
+          m(
+            'td',
+            m(
+              'a',
+              {
+                href: '#',
+                onclick: () => {
+                  //w.arena.game.delete() // FIXME does this even work?
+                }
+              },
+              'x'
+            )
+          )
         )
       })
     )
