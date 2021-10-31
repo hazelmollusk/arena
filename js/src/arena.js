@@ -26,6 +26,9 @@ export default class Arena extends w.cls.Control {
       '/login': Login
     })
     this.loadGame()
+    Promise.resolve(w.obj.CreatureBase.objects.all())
+    Promise.resolve(w.obj.SpellBase.objects.all())
+
   }
 
   loadGame () {
@@ -71,6 +74,21 @@ export default class Arena extends w.cls.Control {
       })
       m.redraw()
     })
+  }
+
+  async updateSpells () {
+    if (this.game) {
+      return w.obj.Spell.objects
+        .filter({ creature__game_id: this.game.id })
+        .then(s => {
+          this._spells = {}
+          s.forEach(spell => {
+            if (!(spell.creature in this._spells))
+              this._spells[spell.creature] = []
+            this._spells[spell.creature].push(spell)
+          })
+        })
+    }
   }
 
   async updateCreatures () {
@@ -189,6 +207,7 @@ export default class Arena extends w.cls.Control {
       this.d('refreshing game', this._game)
       promises.push(this.updateCells())
       promises.push(this.updatePlayers())
+      promises.push(this.updateSpells())
     }
 
     let x = Promise.all(promises)
@@ -208,7 +227,9 @@ export default class Arena extends w.cls.Control {
     return 'Arena'
   }
   getPropName () {
-    console.log('GETTING')
     return 'arena'
+  }
+  cast() {
+
   }
 }

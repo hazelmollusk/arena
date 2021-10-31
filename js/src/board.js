@@ -3,6 +3,7 @@ import w from 'walax'
 import Creature from './creature'
 import Controls from './controls'
 import Side from './side'
+import Spells from './spells'
 
 export default class Board extends w.cls.Entity {
   toString () {
@@ -38,6 +39,13 @@ export default class Board extends w.cls.Entity {
                 'td#side',
                 { rowspan: w.arena.game.size, valign: 'top' },
                 m(Side)
+              )
+            )
+            cols.push(
+              m(
+                'td#spells',
+                { rowspan: w.arena.game.size, valign: 'top' },
+                m(Spells)
               )
             )
           }

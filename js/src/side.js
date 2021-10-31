@@ -17,6 +17,7 @@ export default class Side extends w.cls.Entity {
         if (w.arena.selected) {
           let creature = w.arena.selected
           let base = w.obj.CreatureBase.objects.cached(creature.base)
+          this.d('selected', creature, base)
           el.push(m('.creatureName', base.name))
           el.push(m('.creatureHp', ['HP: ', creature.hp, '/', base.hp]))
           el.push(

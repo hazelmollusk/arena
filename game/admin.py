@@ -7,7 +7,6 @@ for model in [
     Cell,
     CreatureBase,
     Creature,
-    Wizard,
     Spell,
     SpellBase,
 ]:

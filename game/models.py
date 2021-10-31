@@ -18,6 +18,14 @@ TILES = (
     (3, 'Rock'),
 )
 
+PHASES = (
+    (0, 'joining'),
+    (1, 'play'),
+    (2, 'ended')
+)
+
+WIZ_NAMES = ('Iskander', 'Crowley')
+
 
 class UUIDPrimaryKeyMixin(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -40,15 +48,6 @@ class Cell(ArenaModel):
 
     def __str__(self):
         return '%s, %s' % (self.x, self.y)
-
-
-PHASES = (
-    (0, 'joining'),
-    (1, 'play'),
-    (2, 'ended')
-)
-
-WIZ_NAMES = ('Iskander', 'Crowley')
 
 
 class Game(ArenaModel):
@@ -97,12 +96,12 @@ class Game(ArenaModel):
         base, isnew = CreatureBase.objects.get_or_create(name='Wizard')
         base.name = 'Wizard'
         base.exp = 0
-        base.hp = 3
+        base.hp = 2
         base.moves = 2
         base.icon = 'wizard'
         base.save()
         wiz_name = WIZ_NAMES[randint(0, len(WIZ_NAMES)-1)]
-        wiz = Wizard.objects.create(
+        wiz = Creature.objects.create(
             base=base, hp=base.hp, game=self, name=wiz_name, x=x, y=y, user=user, moves=base.moves)
         spells = SpellBase.objects.all()
         if len(spells):
@@ -157,6 +156,7 @@ class Game(ArenaModel):
     @action
     def start(self, req):
         players = self.players.all()
+        self.current = players[0]
         # fixme add more than four
         positions = [
             (2, 2), (self.size-1, self.size-1), (2, self.size-1), (self.size-1, 2)
@@ -226,6 +226,8 @@ class CreatureBase(ArenaModel):
 
 
 class Creature(ArenaModel):
+
+    name = models.CharField(max_length=32, blank=True, null=True)
     base = models.ForeignKey(CreatureBase, on_delete=models.CASCADE)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     user = models.ForeignKey(USER, null=True, blank=True,
@@ -272,25 +274,30 @@ class Creature(ArenaModel):
             print('move : not safe square')
             return 'no'
         self.x, self.y = newx, newy
-        self.moves -= 1
+        self.moves -= 1  # todo terrain
         self.save()
         print('move : moved!')
         return 'yes'
 
 
-class Wizard(Creature):
-    name = models.CharField(max_length=32)
+TARGET_TYPES = (
+    (0, 'Summon'),
+    (1, 'Adjacent'),
+    (2, 'LOS'),
+    (3, 'None')
+)
 
 
 class SpellBase(ArenaModel):
     name = models.CharField(max_length=32)
     alignment = models.IntegerField(default=0)
+    target_type = models.IntegerField(choices=TARGET_TYPES, default=0),
     summons = models.ForeignKey(
         CreatureBase,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="summons",
+        related_name="spellbase",
     )
 
     def __str__(self):
