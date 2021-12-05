@@ -96,7 +96,7 @@ class Game(ArenaModel):
         base, isnew = CreatureBase.objects.get_or_create(name='Wizard')
         base.name = 'Wizard'
         base.exp = 0
-        base.hp = 3
+        base.hp = 2
         base.moves = 2
         base.icon = 'wizard'
         base.save()
@@ -105,7 +105,7 @@ class Game(ArenaModel):
             base=base, hp=base.hp, game=self, name=wiz_name, x=x, y=y, user=user, moves=base.moves)
         spells = SpellBase.objects.all()
         if len(spells):
-            for i in range(0, 25):
+            for i in range(0, 30):
                 base = spells[randint(0, len(spells)-1)]
                 spell = Spell.objects.create(base=base, creature=wiz)
 
@@ -233,7 +233,6 @@ class Creature(ArenaModel):
     user = models.ForeignKey(USER, null=True, blank=True,
                              on_delete=models.CASCADE,
                              related_name="creatures")
-    damage = models.IntegerField(default=1)
     hp = models.IntegerField(default=10)
     moves = models.IntegerField(default=0)
     x = models.PositiveSmallIntegerField(default=0)
@@ -265,14 +264,11 @@ class Creature(ArenaModel):
             return 'no'
         cells = Cell.objects.filter(game=game)
         creatures = Creature.objects.filter(game=game)
-        safe, combat = False,  False
-        for c in Creature.objects.all(game=game):
-            if c.x == newx and c.y == newy:
-                self.combat(c)
-                combat = True
+        safe = False
+        # check the square for creature TODO FIXME
         for cell in cells:
             if cell.x == newx and cell.y == newy:
-                if cell.tile < 2 and not combat:
+                if cell.tile < 2:
                     safe = True
         if not safe:
             print('move : not safe square')
@@ -283,29 +279,18 @@ class Creature(ArenaModel):
         print('move : moved!')
         return 'yes'
 
-    def combat(self, creature):
-        creature.take_damage(self.damage)
-        self.moves = 0
-
-    def take_damage(self, damage):
-        self.hp -= damage
-        if self.hp <= 0:
-            self.alive = False
-
 
 TARGET_TYPES = (
-    (0, 'None'),
+    (0, 'Summon'),
     (1, 'Adjacent'),
     (2, 'LOS'),
-    (3, 'Creature'),
-    (4, 'World'),
+    (3, 'None')
 )
 
 
 class SpellBase(ArenaModel):
     name = models.CharField(max_length=32)
     alignment = models.IntegerField(default=0)
-    level = models.PositiveSmallIntegerField(default=0)
     target_type = models.IntegerField(choices=TARGET_TYPES, default=0),
     summons = models.ForeignKey(
         CreatureBase,

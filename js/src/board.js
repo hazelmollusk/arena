@@ -22,7 +22,7 @@ export default class Board extends w.cls.Entity {
           cols = []
           for (let x = 1; x <= w.arena.game.size; x++) {
             let tileCls = ['tile']
-            let tileContent = ''
+            let tileContent = `${x}/${y}`
             if (creatures[y] && creatures[y][x]) {
               this.d('creature found', creatures[y][x])
               tileContent = m(Creature, { creature: creatures[y][x] })
@@ -30,14 +30,22 @@ export default class Board extends w.cls.Entity {
             let tileId = ['tile', `${x}`, `${y}`].join('-')
             tileCls.push(grid[y][x].tile.toLowerCase())
             cols.push(
+              m('td#' + tileId + '.' + tileCls.join('-'), {}, tileContent)
+            )
+          }
+          if (y == 1) {
+            cols.push(
               m(
-                'td#' + tileId + '.' + tileCls.join('-'),
-                {
-                  onclick: k => {
-                    w.arena.clickTile(x, y)
-                  }
-                },
-                tileContent
+                'td#side',
+                { rowspan: w.arena.game.size, valign: 'top' },
+                m(Side)
+              )
+            )
+            cols.push(
+              m(
+                'td#spells',
+                { rowspan: w.arena.game.size, valign: 'top' },
+                m(Spells)
               )
             )
           }
@@ -47,18 +55,7 @@ export default class Board extends w.cls.Entity {
       } catch (err) {
         this.e('loading cells', err)
       }
-      return m('.boardPage', [
-        m(Controls),
-        m('hr'),
-        m(
-          'table',
-          m('tr', [
-            m('td#board', { valign: 'top' }, table),
-            m('td#side', { valign: 'top' }, m(Side)),
-            m('td#spells', { valign: 'top' }, m(Spells))
-          ])
-        )
-      ])
+      return m('.boardPage', [m(Controls), m('hr'), table])
     } else {
       return m('h1', 'no game selected')
     }
