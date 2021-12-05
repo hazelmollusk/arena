@@ -207,10 +207,10 @@ class GamePlayer(models.Model):
 
 class CreatureBase(ArenaModel):
     name = models.CharField(max_length=32)
-    hp = models.IntegerField(default=10)
+    hp = models.PostiveSmallIntegerField(default=10)
     alignment = models.IntegerField(default=50)
-    damage = models.IntegerField(default=1)
-    moves = models.IntegerField(default=2)
+    damage = models.PostiveSmallIntegerField(default=1)
+    moves = models.PostiveSmallIntegerField(default=2)
     icon = models.CharField(max_length=20)
     spells = models.ManyToManyField('SpellBase', null=True, blank=True)
 
@@ -233,8 +233,9 @@ class Creature(ArenaModel):
     user = models.ForeignKey(USER, null=True, blank=True,
                              on_delete=models.CASCADE,
                              related_name="creatures")
-    hp = models.IntegerField(default=10)
-    moves = models.IntegerField(default=0)
+    hp = models.PostiveSmallIntegerField(default=10)
+    moves = models.PostiveSmallIntegerField(default=0)
+    damage = models.PostiveSmallIntegerField(default=0)
     x = models.PositiveSmallIntegerField(default=0)
     y = models.PositiveSmallIntegerField(default=0)
     alive = models.BooleanField(default=True)
@@ -291,7 +292,8 @@ TARGET_TYPES = (
 class SpellBase(ArenaModel):
     name = models.CharField(max_length=32)
     alignment = models.IntegerField(default=0)
-    target_type = models.IntegerField(choices=TARGET_TYPES, default=0),
+    target_type = models.PostiveSmallIntegerField(
+        choices=TARGET_TYPES, default=0),
     summons = models.ForeignKey(
         CreatureBase,
         on_delete=models.SET_NULL,
