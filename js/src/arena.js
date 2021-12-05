@@ -15,6 +15,7 @@ export default class Arena extends w.cls.Control {
     this._user = null
     this._selected = null
     this._players = []
+    this._targeting = false
   }
 
   start () {
@@ -28,14 +29,15 @@ export default class Arena extends w.cls.Control {
     this.loadGame()
     Promise.resolve(w.obj.CreatureBase.objects.all())
     Promise.resolve(w.obj.SpellBase.objects.all())
-
   }
 
   loadGame () {
     if (w.auth.storage.getItem('gameid', false)) {
       let gameId = w.auth.storage.getItem('gameid')
+      this.d('loading gameid', gameId)
       return w.obj.Game.objects.one({ id: gameId }).then(g => {
         //fixmea
+        this.d('loading game obj', g)
         this.game = g
       })
     }
@@ -213,6 +215,13 @@ export default class Arena extends w.cls.Control {
     let x = Promise.all(promises)
     return x
   }
+  clickTile (x, y) {
+    if (!this._targeting) {
+      if (this._selected && (this._selected.x != x || this._selected.y != y))
+        this._selected = null
+    } else {
+    }
+  }
   click (creature) {
     // TODO handle target selection if needed
     if (this.selected == creature) {
@@ -229,7 +238,5 @@ export default class Arena extends w.cls.Control {
   getPropName () {
     return 'arena'
   }
-  cast() {
-
-  }
+  cast () {}
 }
