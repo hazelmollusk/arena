@@ -207,10 +207,10 @@ class GamePlayer(models.Model):
 
 class CreatureBase(ArenaModel):
     name = models.CharField(max_length=32)
-    hp = models.PostiveSmallIntegerField(default=10)
+    hp = models.PositiveSmallIntegerField(default=10)
     alignment = models.IntegerField(default=50)
-    damage = models.PostiveSmallIntegerField(default=1)
-    moves = models.PostiveSmallIntegerField(default=2)
+    damage = models.PositiveSmallIntegerField(default=1)
+    moves = models.PositiveSmallIntegerField(default=2)
     icon = models.CharField(max_length=20)
     spells = models.ManyToManyField('SpellBase', null=True, blank=True)
 
@@ -233,9 +233,9 @@ class Creature(ArenaModel):
     user = models.ForeignKey(USER, null=True, blank=True,
                              on_delete=models.CASCADE,
                              related_name="creatures")
-    hp = models.PostiveSmallIntegerField(default=10)
-    moves = models.PostiveSmallIntegerField(default=0)
-    damage = models.PostiveSmallIntegerField(default=0)
+    hp = models.PositiveSmallIntegerField(default=10)
+    moves = models.PositiveSmallIntegerField(default=0)
+    damage = models.PositiveSmallIntegerField(default=0)
     x = models.PositiveSmallIntegerField(default=0)
     y = models.PositiveSmallIntegerField(default=0)
     alive = models.BooleanField(default=True)
@@ -266,11 +266,13 @@ class Creature(ArenaModel):
         cells = Cell.objects.filter(game=game)
         creatures = Creature.objects.filter(game=game)
         safe = False
-        # check the square for creature TODO FIXME
         for cell in cells:
             if cell.x == newx and cell.y == newy:
                 if cell.tile < 2:
                     safe = True
+        for creature in Creature.objects.filter(game=game):
+            if newx == creature.x and newy == creature.y:
+                return self.combat(creature)
         if not safe:
             print('move : not safe square')
             return 'no'
@@ -279,6 +281,18 @@ class Creature(ArenaModel):
         self.save()
         print('move : moved!')
         return 'yes'
+
+    def combat(self, creature):
+        # TODO special features?
+        creature.take_damage(self.damage)
+        print('combat')
+        self.moves = 0
+        return "fought"
+
+    def take_damage(self, damage):
+        self.hp -= damage
+        if self.hp <= 0:
+            self.alive = False
 
 
 TARGET_TYPES = (
@@ -292,7 +306,7 @@ TARGET_TYPES = (
 class SpellBase(ArenaModel):
     name = models.CharField(max_length=32)
     alignment = models.IntegerField(default=0)
-    target_type = models.PostiveSmallIntegerField(
+    target_type = models.PositiveSmallIntegerField(
         choices=TARGET_TYPES, default=0),
     summons = models.ForeignKey(
         CreatureBase,

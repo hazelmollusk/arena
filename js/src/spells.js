@@ -12,11 +12,15 @@ export default class Spells extends w.cls.Entity {
           if (spells)
             for (let spell of spells) {
               let base = w.obj.SpellBase.objects.cached(spell.base)
+              let spellClasses = ['a', 'spell']
+              if (base.alignment < 0) spellClasses.push('evil')
+              if (base.alignment > 0) spellClasses.push('good')
+
               el.push(
                 m(
                   '.spell',
                   m(
-                    'a.spell',
+                    spellClasses.join('.'),
                     {
                       onclick: x => {
                         w.arena.cast(spell)
