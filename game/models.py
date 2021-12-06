@@ -222,6 +222,7 @@ class CreatureBase(ArenaModel):
         creature.base = self
         creature.hp = self.hp
         creature.moves = self.moves
+        creature.damage = self.damage
         return creature
 
 
@@ -287,19 +288,23 @@ class Creature(ArenaModel):
         creature.take_damage(self.damage)
         print('combat')
         self.moves = 0
+        self.save()
         return "fought"
 
     def take_damage(self, damage):
+        pp(['damage', self.hp, damage])
         self.hp -= damage
         if self.hp <= 0:
             self.alive = False
+        self.save()
 
 
 TARGET_TYPES = (
-    (0, 'Summon'),
+    (0, 'None'),
     (1, 'Adjacent'),
     (2, 'LOS'),
-    (3, 'None')
+    (3, 'Creature'),
+    (4, 'Any')
 )
 
 

@@ -39,6 +39,7 @@ const startButton = () =>
   })
 
 const endButton = () =>
+  //todo hcheck player
   m('input#end', {
     type: 'submit',
     value: 'End Turn',

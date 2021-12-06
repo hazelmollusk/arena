@@ -22,7 +22,7 @@ export default class Board extends w.cls.Entity {
           cols = []
           for (let x = 1; x <= w.arena.game.size; x++) {
             let tileCls = ['tile']
-            let tileContent = `${x}/${y}`
+            let tileContent = ' '
             if (creatures[y] && creatures[y][x]) {
               this.d('creature found', creatures[y][x])
               tileContent = m(Creature, { creature: creatures[y][x] })

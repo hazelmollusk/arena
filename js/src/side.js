@@ -19,6 +19,7 @@ export default class Side extends w.cls.Entity {
           let base = w.obj.CreatureBase.objects.cached(creature.base)
           this.d('selected', creature, base)
           el.push(m('.creatureName', base.name))
+          el.push(m('.creatureDamage', ['Attack: ', creature.damage]))
           el.push(m('.creatureHp', ['HP: ', creature.hp, '/', base.hp]))
           el.push(
             m('.creatureMoves', ['Moves: ', creature.moves, '/', base.moves])
