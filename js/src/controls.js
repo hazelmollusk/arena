@@ -84,8 +84,9 @@ export default class Controls extends w.cls.Entity {
         case 'ended':
           break
       }
-      if (w.arena.game._targeting) {
-        controls.push(m('.targeting', 'targeting'))
+      if (w.arena._targeting) {
+        let base = w.obj.SpellBase.objects.cached(w.arena._spell.base)
+        controls.push(m('.targeting', 'targeting ' + base.name))
       }
     }
     return m('#control', controls)
