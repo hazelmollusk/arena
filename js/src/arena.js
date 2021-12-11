@@ -15,6 +15,9 @@ export default class Arena extends w.cls.Control {
     this._user = null
     this._selected = null
     this._players = []
+    this._spell = null
+    this._targeting = false
+    this._spellBases = null
   }
 
   start () {
@@ -28,7 +31,6 @@ export default class Arena extends w.cls.Control {
     this.loadGame()
     Promise.resolve(w.obj.CreatureBase.objects.all())
     Promise.resolve(w.obj.SpellBase.objects.all())
-
   }
 
   loadGame () {
@@ -78,7 +80,7 @@ export default class Arena extends w.cls.Control {
 
   async updateSpells () {
     if (this.game) {
-      return w.obj.Spell.objects
+      w.obj.Spell.objects
         .filter({ creature__game_id: this.game.id })
         .then(s => {
           this._spells = {}
@@ -88,6 +90,14 @@ export default class Arena extends w.cls.Control {
             this._spells[spell.creature].push(spell)
           })
         })
+    }
+    if (!this._spellBases) {
+      this._spellBases = []
+      w.obj.SpellBase.objects.all().then(spells => {
+        spells.forEach(base => {
+          this._spellBases[base.id] = base
+        })
+      })
     }
   }
 
@@ -213,6 +223,13 @@ export default class Arena extends w.cls.Control {
     let x = Promise.all(promises)
     return x
   }
+  clickTile (x, y) {
+    if (this._targeting) {
+    } else {
+      return true
+    }
+    return false
+  }
   click (creature) {
     // TODO handle target selection if needed
     if (this.selected == creature) {
@@ -229,7 +246,5 @@ export default class Arena extends w.cls.Control {
   getPropName () {
     return 'arena'
   }
-  cast() {
-
-  }
+  cast (spell) {}
 }

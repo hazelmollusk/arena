@@ -300,11 +300,12 @@ class Creature(ArenaModel):
 
 
 TARGET_TYPES = (
-    (0, 'None'),
+    (0, 'Summon'),
     (1, 'Adjacent'),
     (2, 'LOS'),
     (3, 'Creature'),
-    (4, 'Any')
+    (4, 'Any'),
+    (5, 'None'),
 )
 
 
@@ -312,7 +313,7 @@ class SpellBase(ArenaModel):
     name = models.CharField(max_length=32)
     alignment = models.IntegerField(default=0)
     target_type = models.PositiveSmallIntegerField(
-        choices=TARGET_TYPES, default=0),
+        choices=TARGET_TYPES, default=0)
     summons = models.ForeignKey(
         CreatureBase,
         on_delete=models.SET_NULL,
@@ -334,3 +335,6 @@ class Spell(ArenaModel):
 
     def __str__(self):
         return 'Spell: %s/%s' % (self.base.name, self.creature)
+
+    def case(self):
+        pass

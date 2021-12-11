@@ -14,8 +14,9 @@ export default class Spells extends w.cls.Entity {
               let base = w.obj.SpellBase.objects.cached(spell.base)
               let spellClasses = ['a', 'spell']
               if (base.alignment < 0) spellClasses.push('evil')
-              if (base.alignment > 0) spellClasses.push('good')
-
+              else if (base.alignment > 0) spellClasses.push('good')
+              else spellClasses.push('neutral')
+              
               el.push(
                 m(
                   '.spell',

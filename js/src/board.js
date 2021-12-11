@@ -24,13 +24,21 @@ export default class Board extends w.cls.Entity {
             let tileCls = ['tile']
             let tileContent = ' '
             if (creatures[y] && creatures[y][x]) {
-              this.d('creature found', creatures[y][x])
-              tileContent = m(Creature, { creature: creatures[y][x] })
+              if (creatures[y][x].alive) {
+                this.d('creature found', creatures[y][x])
+                tileContent = m(Creature, { creature: creatures[y][x] })
+              }
             }
             let tileId = ['tile', `${x}`, `${y}`].join('-')
             tileCls.push(grid[y][x].tile.toLowerCase())
             cols.push(
-              m('td#' + tileId + '.' + tileCls.join('-'), {}, tileContent)
+              m(
+                'td#' + tileId + '.' + tileCls.join('-'),
+                {
+                  onclick: z => w.arena.clickTile(x, y)
+                },
+                tileContent
+              )
             )
           }
           if (y == 1) {
