@@ -225,6 +225,13 @@ export default class Arena extends w.cls.Control {
   }
   clickTile (x, y) {
     if (this._targeting) {
+      this._spell.cast({ x, y }).then(x => {
+        if (x != 'fail') {
+          this._targeting = false
+          this._spell = null
+          this.refresh()
+        }
+      })
     } else {
       return true
     }
@@ -246,5 +253,15 @@ export default class Arena extends w.cls.Control {
   getPropName () {
     return 'arena'
   }
-  cast (spell) {}
+  cast (spell) {
+    let base = w.obj.SpellBase.objects.cached(spell.base)
+    if (base.target_type == 'None') {
+      spell.cast().then(x => {
+        w.arena.refresh()
+      })
+    } else {
+      this._targeting = true
+      this._spell = spell
+    }
+  }
 }

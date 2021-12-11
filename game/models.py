@@ -336,5 +336,26 @@ class Spell(ArenaModel):
     def __str__(self):
         return 'Spell: %s/%s' % (self.base.name, self.creature)
 
-    def case(self):
-        pass
+    @action
+    def cast(self, req):
+        base, creature = self.base, self.creature
+        if base.target_type != 5:
+            xx, yy = int(req.query_params['x']), int(req.query_params['y'])
+            pp(['casting', self.base.name, xx, yy])
+            if base.target_type in (0, 1):
+                dx = abs(creature.x - xx)
+                dy = abs(creature.y - yy)
+                if dx > 1 or dy > 1:
+                    print('summon too far')
+                    return 'fail'
+            elif base.target_type == 2:
+                pass  # FIXME
+            elif base.target_type == 3:
+                target = Creature.objects.one(
+                    game=self.creature.game, x=xx, y=yy)
+                if not target:
+                    return 'fail'
+        else:
+            print('no target '+base.name)
+        self.used = True
+        self.save()

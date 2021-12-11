@@ -67,7 +67,7 @@ export default class Controls extends w.cls.Entity {
   view () {
     let controls = []
     controls.push(refreshButton())
-    if (w.arena.game)
+    if (w.arena.game) {
       switch (w.arena.game.phase) {
         case 'joining':
           this.d('joining controls')
@@ -84,6 +84,10 @@ export default class Controls extends w.cls.Entity {
         case 'ended':
           break
       }
+      if (w.arena.game._targeting) {
+        controls.push(m('.targeting', 'targeting'))
+      }
+    }
     return m('#control', controls)
   }
 }

@@ -16,7 +16,8 @@ export default class Spells extends w.cls.Entity {
               if (base.alignment < 0) spellClasses.push('evil')
               else if (base.alignment > 0) spellClasses.push('good')
               else spellClasses.push('neutral')
-              
+              if (spell.used) spellClasses.push('used')
+
               el.push(
                 m(
                   '.spell',
