@@ -33,6 +33,7 @@ export default class Home extends w.cls.Entity {
               .then(x => {
                 //w.arena._game = game
                 //m.route.set('/game')
+                w.arena.updateGameList()
               })
               .catch(err => {
                 w.log.error('ERROR SAVING', { game, err })

@@ -5,7 +5,11 @@ export default class Spells extends w.cls.Entity {
   view () {
     let el = []
     if (w.arena.game.phase == 'play') {
-      if (w.arena.selected) {
+      if (
+        w.arena.selected &&
+        w.arena.selected.moves > 0 &&
+        !w.arena.selected.cast
+      ) {
         let creature = w.arena.selected
         if (creature.user == w.arena.user.id) {
           let spells = w.arena._spells[creature.id]
@@ -34,6 +38,8 @@ export default class Spells extends w.cls.Entity {
               )
             }
         }
+      } else {
+        return m('.spells', 'no spells available')
       }
     }
     return m('.spells', el)

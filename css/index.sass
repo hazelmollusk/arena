@@ -35,6 +35,19 @@ body
     margin: 20px
     margin-top:50px
 
+    /* make board controls horizontal */
+.boardRow
+    overflow: auto
+    white-space: nowrap
+
+.boardRow, .boardCol
+    display: inline-block
+    vertical-align: top
+    float: none
+
+.boardTable
+    min-width: 500px
+
 .gameList td a
     color: $menu
     &:hover
@@ -47,8 +60,9 @@ body
         color: $menu
 
 .board td 
-    width: 80px
-    height: 80px
+    width: 80px !important
+    height: 80px !important
+    min-width: 80px
     border: none
 
 a.creature

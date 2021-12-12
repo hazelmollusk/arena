@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bootstrap": "^5.1.3",
     "node": "^16.6.1",
     "npm": "^7.20.2",
     "sass-convert": "^0.5.2",

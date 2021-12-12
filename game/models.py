@@ -175,6 +175,7 @@ class Game(ArenaModel):
         self.current = player
         for creature in Creature.objects.filter(user=player, game=self, alive=True):
             creature.moves = creature.base.moves
+            creature.cast = False
             pp(['resetting moves', creature, creature.moves])
             creature.save()
 
@@ -240,6 +241,7 @@ class Creature(ArenaModel):
     x = models.PositiveSmallIntegerField(default=0)
     y = models.PositiveSmallIntegerField(default=0)
     alive = models.BooleanField(default=True)
+    cast = models.BooleanField(default=False)
 
     def __str__(self):
         return 'Creature: %s' % self.base.name
@@ -339,6 +341,8 @@ class Spell(ArenaModel):
     @action
     def cast(self, req):
         base, creature = self.base, self.creature
+        if creature.cast or creature.moves < 1:
+            return 'fail'
         if base.target_type != 5:
             xx, yy = int(req.query_params['x']), int(req.query_params['y'])
             pp(['casting', self.base.name, xx, yy])
@@ -359,3 +363,5 @@ class Spell(ArenaModel):
             print('no target '+base.name)
         self.used = True
         self.save()
+        creature.cast = True
+        creature.save()

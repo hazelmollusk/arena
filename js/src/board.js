@@ -41,29 +41,26 @@ export default class Board extends w.cls.Entity {
               )
             )
           }
-          if (y == 1) {
-            cols.push(
-              m(
-                'td#side',
-                { rowspan: w.arena.game.size, valign: 'top' },
-                m(Side)
-              )
-            )
-            cols.push(
-              m(
-                'td#spells',
-                { rowspan: w.arena.game.size, valign: 'top' },
-                m(Spells)
-              )
-            )
-          }
           rows.push(m('tr', cols))
         }
         table = m('table.board', rows)
       } catch (err) {
         this.e('loading cells', err)
       }
-      return m('.boardPage', [m(Controls), m('hr'), table])
+
+      let layout = [
+        m(Controls),
+        m('hr'),
+        m(
+          '.board.container-fluid',
+          m('.row.row-fluid.boardRow', [
+            m('.boardCol.boardTable.col.col-lg-auto', table),
+            m('.boardCol.side.col.col-sm-auto', m(Side)),
+            m('.boardCol.spells.col.col-sm-auto', m(Spells))
+          ])
+        )
+      ]
+      return m('.boardPage', layout)
     } else {
       return m('h1', 'no game selected')
     }
