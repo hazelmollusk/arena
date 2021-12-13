@@ -17,8 +17,16 @@ export default class Side extends w.cls.Entity {
         if (w.arena.selected) {
           let creature = w.arena.selected
           let base = w.obj.CreatureBase.objects.cached(creature.base)
-          this.d('selected', creature, base)
-          el.push(m('.creatureName', base.name))
+          this.d('selected', creature, creature.base, base)
+          let name = base.name
+          if (creature.name) name += ' - ' + creature.name
+          el.push(
+            m(
+              '.creatureName',
+              //base.name + (' - ' + creature.name) ? `${creature.name}` : ''
+              name
+            )
+          )
           el.push(m('.creatureDamage', ['Attack: ', creature.damage]))
           el.push(m('.creatureHp', ['HP: ', creature.hp, '/', base.hp]))
           el.push(
@@ -42,7 +50,7 @@ export default class Side extends w.cls.Entity {
                         {
                           onclick: () => {
                             w.log.info('moving', creature, x, y)
-                            return creature.move({ x: x, y: y }).then(x => {
+                            return creature.move({ x, y }).then(x => {
                               w.arena.refresh()
                             })
                           }

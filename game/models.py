@@ -50,6 +50,12 @@ class Cell(ArenaModel):
         return '%s, %s' % (self.x, self.y)
 
 
+class GamePlayer(models.Model):
+    user = models.ForeignKey(USER, on_delete=models.CASCADE)
+    game = models.ForeignKey('Game', on_delete=models.CASCADE)
+    alive = models.BooleanField(default=True)
+
+
 class Game(ArenaModel):
     name = models.CharField(max_length=32)
     owner = models.ForeignKey(
@@ -74,7 +80,7 @@ class Game(ArenaModel):
         base, isnew = CreatureBase.objects.get_or_create(name='Tree')
         base.name = 'Tree'
         base.exp = 1
-        base.hp = 2
+        base.hp = 1
         base.moves = 0
         base.icon = 'tree'
         base.save()
@@ -180,18 +186,39 @@ class Game(ArenaModel):
             pp(['resetting moves', creature, creature.moves])
             creature.save()
 
+    def checkAlive(self):
+        players = GamePlayer.objects.filter(
+            game=self, alive=True)
+        ret = []
+        for player in players:
+            dead = True
+            creatures = Creature.objects.filter(game=self, user=player.user)
+            for creature in creatures:
+                if creature.name in WIZ_NAMES and creature.alive:
+                    dead = False
+            if dead:
+                gp = GamePlayer.objects.filter(game=self, user=player.user)
+                gp.dead = True
+                gp.save()
+            else:
+                ret.append(player.user)
+        # TODO check to see if game is over
+        return ret
+
     @action
     def endturn(self, req):
         if req.user != self.current:
             pp([req.user, self.current])
             return 'not your turn'
-        players = self.players.all()
+        players = self.checkAlive()
+
         nextup = 0
         for i in range(0, len(players)):
-            if players[i] == self.current:
+            #player = w.obj.User.cached(i)
+            if players == self.current:
                 nextup = 0 if (i == len(players)-1) else i+1
         self.set_current(players[nextup])
-        pp(['ending turn', self.current])
+        pp(['next turn', self.current])
         self.save()
 
         creatures = Creature.objects.filter(game=self, user=self.current)
@@ -200,11 +227,6 @@ class Game(ArenaModel):
             creature.moves = creature.base.moves
         pp(['end turn, next up', self, self.current])
         return 'next'
-
-
-class GamePlayer(models.Model):
-    user = models.ForeignKey(USER, on_delete=models.CASCADE)
-    game = models.ForeignKey(Game, on_delete=models.CASCADE)
 
 
 class CreatureBase(ArenaModel):
