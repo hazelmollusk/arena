@@ -47,6 +47,7 @@ export default class Arena extends w.cls.Control {
     return w.net.get(`${w.apiBase}auth/user/`).then(user => {
       let obj = w.obj.receiveObject(w.obj.User, user)
       this._user = obj
+      this.d('current user retrieved')
       return obj
     })
   }

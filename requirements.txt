@@ -1,0 +1,16 @@
+asgiref==3.4.1
+autopep8==1.5.7
+certifi==2021.10.8
+charset-normalizer==2.0.9
+Django==4.0rc1
+djangorestframework==3.12.4
+djangorestframework-simplejwt==4.7.2
+idna==3.3
+pycodestyle==2.7.0
+PyJWT==2.1.0
+pytz==2021.1
+requests==2.26.0
+sqlparse==0.4.1
+toml==0.10.2
+urllib3==1.26.7
+walax==1.1.4

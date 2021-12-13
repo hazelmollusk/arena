@@ -1,0 +1,8 @@
+#!/bin/bash
+walax
+npm run watch &
+arena
+./manage.py runserver &
+npm run watchjs &
+npm run watchcss &
+./manage.py shell

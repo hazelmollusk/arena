@@ -24,7 +24,7 @@ PHASES = (
     (2, 'ended')
 )
 
-WIZ_NAMES = ('Iskander', 'Crowley')
+WIZ_NAMES = ('Iskander', 'Crowley', 'Radagast', 'Raistlin')
 
 
 class UUIDPrimaryKeyMixin(models.Model):
@@ -151,6 +151,7 @@ class Game(ArenaModel):
             print('joined!')
         else:
             print('game is full!')
+            return 'no'
         return 'go'
 
     @action
@@ -209,7 +210,7 @@ class GamePlayer(models.Model):
 class CreatureBase(ArenaModel):
     name = models.CharField(max_length=32)
     hp = models.PositiveSmallIntegerField(default=10)
-    alignment = models.IntegerField(default=50)
+    alignment = models.IntegerField(default=0)
     damage = models.PositiveSmallIntegerField(default=1)
     moves = models.PositiveSmallIntegerField(default=2)
     icon = models.CharField(max_length=20)
@@ -235,7 +236,7 @@ class Creature(ArenaModel):
     user = models.ForeignKey(USER, null=True, blank=True,
                              on_delete=models.CASCADE,
                              related_name="creatures")
-    hp = models.PositiveSmallIntegerField(default=10)
+    hp = models.PositiveSmallIntegerField(default=1)
     moves = models.PositiveSmallIntegerField(default=0)
     damage = models.PositiveSmallIntegerField(default=0)
     x = models.PositiveSmallIntegerField(default=0)
@@ -244,7 +245,7 @@ class Creature(ArenaModel):
     cast = models.BooleanField(default=False)
 
     def __str__(self):
-        return 'Creature: %s' % self.base.name
+        return '%s' % self.name if self.name else self.base.name
 
     @action
     def move(self, req):
@@ -275,7 +276,10 @@ class Creature(ArenaModel):
                     safe = True
         for creature in Creature.objects.filter(game=game):
             if newx == creature.x and newy == creature.y:
-                return self.combat(creature)
+                safe = False
+                if creature.user != self.user:
+                    return self.combat(creature)
+                return 'fail'
         if not safe:
             print('move : not safe square')
             return 'no'
@@ -310,6 +314,11 @@ TARGET_TYPES = (
     (5, 'None'),
 )
 
+EFFECT_TYPES = (
+    (0, 'Summon'),
+    (1, 'Fireball'),
+)
+
 
 class SpellBase(ArenaModel):
     name = models.CharField(max_length=32)
@@ -323,6 +332,8 @@ class SpellBase(ArenaModel):
         blank=True,
         related_name="spellbase",
     )
+    effect = models.PositiveSmallIntegerField(
+        choices=EFFECT_TYPES, default=0)
 
     def __str__(self):
         return 'SpellBase: %s' % self.name
@@ -336,13 +347,14 @@ class Spell(ArenaModel):
     )
 
     def __str__(self):
-        return 'Spell: %s/%s' % (self.base.name, self.creature)
+        return '%s/%s' % (self.base.name, self.creature)
 
     @action
     def cast(self, req):
         base, creature = self.base, self.creature
         if creature.cast or creature.moves < 1:
             return 'fail'
+        xx, yy = 0, 0
         if base.target_type != 5:
             xx, yy = int(req.query_params['x']), int(req.query_params['y'])
             pp(['casting', self.base.name, xx, yy])
@@ -361,7 +373,42 @@ class Spell(ArenaModel):
                     return 'fail'
         else:
             print('no target '+base.name)
+        ret = self.cast_real(creature, xx, yy)
         self.used = True
         self.save()
         creature.cast = True
         creature.save()
+        if not ret:
+            return 'fail'
+        return 'cast success'
+
+    def check_cast(self, creature):
+        if not self.creature.base.name == 'Wizard':
+            print('not a wizard')
+            return True
+        return True
+
+    def cast_real(self, creature, x, y):
+        pp(['casting', creature, self, x, y])
+        if not self.check_cast(creature):
+            return False
+
+        # summons
+        if self.base.target_type == 0:
+            # should use get_creature FIXME
+            newc = Creature.objects.create(
+                base=self.base.summons,
+                game=self.creature.game,
+                user=self.creature.user,
+                hp=self.base.summons.hp,
+                moves=0,
+                damage=self.base.summons.damage,
+                x=x,
+                y=y,
+                cast=True
+            )
+            newc.save()
+            return True
+        else:
+            # non-summon spells
+            return True
