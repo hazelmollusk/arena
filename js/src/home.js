@@ -33,7 +33,9 @@ export default class Home extends w.cls.Entity {
               .then(x => {
                 //w.arena._game = game
                 //m.route.set('/game')
-                w.arena.updateGameList()
+                w.arena.updateGameList().then(x => {
+                  m.refresh()
+                })
               })
               .catch(err => {
                 w.log.error('ERROR SAVING', { game, err })
@@ -47,6 +49,7 @@ export default class Home extends w.cls.Entity {
         onclick: () => {
           console.log('refresh')
           w.arena.updateGameList()
+          w.refresh()
         }
       }),
       m(GameList)

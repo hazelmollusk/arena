@@ -29,7 +29,10 @@ export default class Spells extends w.cls.Entity {
                     spellClasses.join('.'),
                     {
                       onclick: x => {
-                        w.arena.cast(spell)
+                        w.log.debug('spell', spell)
+                        if (!spell.used) {
+                          w.arena.cast(spell)
+                        }
                       }
                     },
                     base.name

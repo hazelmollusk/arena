@@ -231,8 +231,10 @@ class Game(ArenaModel):
 
 class CreatureBase(ArenaModel):
     name = models.CharField(max_length=32)
-    hp = models.PositiveSmallIntegerField(default=10)
-    alignment = models.IntegerField(default=0)
+    summon_name = models.CharField(max_length=32, blank=True, null=True)
+    summon_message = models.CharField(max_length=64, blank=True, null=True)
+    hp = models.PositiveSmallIntegerField(default=1)
+    alignment = models.SmallIntegerField(default=0)
     damage = models.PositiveSmallIntegerField(default=1)
     moves = models.PositiveSmallIntegerField(default=2)
     icon = models.CharField(max_length=20)
@@ -247,6 +249,8 @@ class CreatureBase(ArenaModel):
         creature.hp = self.hp
         creature.moves = self.moves
         creature.damage = self.damage
+        if self.summon_name:
+            creature.name = self.summon_name
         return creature
 
 
@@ -265,6 +269,7 @@ class Creature(ArenaModel):
     y = models.PositiveSmallIntegerField(default=0)
     alive = models.BooleanField(default=True)
     cast = models.BooleanField(default=False)
+    align = models.IntegerField(default=0)
 
     def __str__(self):
         return '%s' % self.name if self.name else self.base.name
@@ -339,12 +344,14 @@ TARGET_TYPES = (
 EFFECT_TYPES = (
     (0, 'Summon'),
     (1, 'Fireball'),
+    (2, 'Strength')
 )
 
 
 class SpellBase(ArenaModel):
     name = models.CharField(max_length=32)
-    alignment = models.IntegerField(default=0)
+    alignment = models.SmallIntegerField(default=0)
+    level = models.PositiveSmallIntegerField(default=0)
     target_type = models.PositiveSmallIntegerField(
         choices=TARGET_TYPES, default=0)
     summons = models.ForeignKey(
@@ -356,6 +363,7 @@ class SpellBase(ArenaModel):
     )
     effect = models.PositiveSmallIntegerField(
         choices=EFFECT_TYPES, default=0)
+    repeat = models.BooleanField(default=False)
 
     def __str__(self):
         return 'SpellBase: %s' % self.name
@@ -389,20 +397,21 @@ class Spell(ArenaModel):
             elif base.target_type == 2:
                 pass  # FIXME
             elif base.target_type == 3:
-                target = Creature.objects.one(
+                target = Creature.objects.get(
                     game=self.creature.game, x=xx, y=yy)
                 if not target:
                     return 'fail'
         else:
             print('no target '+base.name)
         ret = self.cast_real(creature, xx, yy)
-        self.used = True
+        if not self.base.repeat:
+            self.used = True
         self.save()
         creature.cast = True
         creature.save()
         if not ret:
             return 'fail'
-        return 'cast success'
+        return ret
 
     def check_cast(self, creature):
         if not self.creature.base.name == 'Wizard':
@@ -414,9 +423,9 @@ class Spell(ArenaModel):
         pp(['casting', creature, self, x, y])
         if not self.check_cast(creature):
             return False
-
+        base = self.base
         # summons
-        if self.base.target_type == 0:
+        if base.target_type == 0:
             # should use get_creature FIXME
             newc = Creature.objects.create(
                 base=self.base.summons,
@@ -427,10 +436,30 @@ class Spell(ArenaModel):
                 damage=self.base.summons.damage,
                 x=x,
                 y=y,
-                cast=True
+                cast=False if base.repeat else True
             )
+            if base.repeat:
+                newc.cast = False
             newc.save()
             return True
         else:
             # non-summon spells
+            try:
+                target = Creature.objects.get(
+                    game=creature.game, x=x, y=y)
+            except:
+                target = False
+            pp(['cast_real', base.name, base.effect])
+            if base.effect == 1:
+                print('fireball', base.name)
+                target.take_damage(3)
+            elif base.effect == 2:
+                print('strength', target)
+                target.damage += 3
+                target.hp += 3
+                print(target.damage, target.hp)
+                target.save()
+                target = Creature.objects.get(
+                    game=creature.game, x=x, y=y)
+                print(target.damage, target.hp)
             return True

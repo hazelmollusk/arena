@@ -30,7 +30,10 @@ export default class GameList extends w.cls.Entity {
               {
                 href: '#',
                 onclick: () => {
-                  //w.arena.game.delete() // FIXME does this even work?
+                  g.delete().then(x => {
+                    w.arena.updateGameList()
+                    m.refresh()
+                  })
                 }
               },
               'x'

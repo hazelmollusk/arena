@@ -75,7 +75,6 @@ export default class Arena extends w.cls.Control {
       x.forEach(g => {
         this._games.push(g)
       })
-      m.redraw()
     })
   }
 
@@ -215,19 +214,20 @@ export default class Arena extends w.cls.Control {
 
     if (this._game) {
       promises.push(w.obj.Game.objects.one({ id: this._game.id }))
-      this.d('refreshing game', this._game)
       promises.push(this.updateCells())
       promises.push(this.updatePlayers())
       promises.push(this.updateSpells())
     }
 
-    let x = Promise.all(promises)
+    let x = Promise.all(promises).then(z => {
+      m.redraw()
+    })
     return x
   }
   clickTile (x, y) {
     if (this._targeting) {
-      this._spell.cast({ x, y }).then(x => {
-        if (x != 'fail') {
+      this._spell.cast({ x, y }).then(z => {
+        if (z != 'fail') {
           this._targeting = false
           this._spell = null
           this.refresh()
