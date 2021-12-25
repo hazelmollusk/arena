@@ -31,11 +31,9 @@ export default class Home extends w.cls.Entity {
             game
               .save()
               .then(x => {
-                //w.arena._game = game
-                //m.route.set('/game')
-                w.arena.updateGameList().then(x => {
-                  m.refresh()
-                })
+                w.arena._game = game
+                m.route.set('/game')
+                w.arena.refresh()
               })
               .catch(err => {
                 w.log.error('ERROR SAVING', { game, err })
@@ -47,7 +45,6 @@ export default class Home extends w.cls.Entity {
         type: 'button',
         value: 'Refresh',
         onclick: () => {
-          console.log('refresh')
           w.arena.refresh()
         }
       }),
