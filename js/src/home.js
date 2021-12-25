@@ -48,8 +48,7 @@ export default class Home extends w.cls.Entity {
         value: 'Refresh',
         onclick: () => {
           console.log('refresh')
-          w.arena.updateGameList()
-          w.refresh()
+          w.arena.refresh()
         }
       }),
       m(GameList)

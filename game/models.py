@@ -231,7 +231,6 @@ class Game(ArenaModel):
 
 class CreatureBase(ArenaModel):
     name = models.CharField(max_length=32)
-    summon_name = models.CharField(max_length=32, blank=True, null=True)
     summon_message = models.CharField(max_length=64, blank=True, null=True)
     hp = models.PositiveSmallIntegerField(default=1)
     alignment = models.SmallIntegerField(default=0)
@@ -249,8 +248,6 @@ class CreatureBase(ArenaModel):
         creature.hp = self.hp
         creature.moves = self.moves
         creature.damage = self.damage
-        if self.summon_name:
-            creature.name = self.summon_name
         return creature
 
 
