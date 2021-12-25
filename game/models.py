@@ -262,8 +262,8 @@ class Creature(ArenaModel):
     user = models.ForeignKey(USER, null=True, blank=True,
                              on_delete=models.CASCADE,
                              related_name="creatures")
-    hp = models.PositiveSmallIntegerField(default=1)
-    moves = models.PositiveSmallIntegerField(default=0)
+    hp = models.SmallIntegerField(default=1)
+    moves = models.SmallIntegerField(default=0)
     damage = models.PositiveSmallIntegerField(default=0)
     x = models.PositiveSmallIntegerField(default=0)
     y = models.PositiveSmallIntegerField(default=0)

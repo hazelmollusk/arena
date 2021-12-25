@@ -15,13 +15,16 @@ export default class Creature extends w.cls.Entity {
     })
     let sel = w.arena.selected == creature ? '.selected' : ''
     return m(
-      'a.creature' + sel,
-      {
-        onclick: () => {
-          w.arena.click(creature)
-        }
-      },
-      img
+      '.creature',
+      m(
+        'a.creature' + sel,
+        {
+          onclick: () => {
+            w.arena.click(creature)
+          }
+        },
+        img
+      )
     )
   }
 }
