@@ -14,8 +14,11 @@ export default class Creature extends w.cls.Entity {
       src: `/static/arena/images/tile/${icon}.png`
     })
     let sel = w.arena.selected == creature ? '.selected' : ''
+    let zidx = 40
+    if (icon == 'tree') zidx = 30
     return m(
       '.creature',
+      { 'z-index': zidx },
       m(
         'a.creature' + sel,
         {

@@ -27,8 +27,8 @@ export default class Side extends w.cls.Entity {
               name
             )
           )
-          el.push(m('.creatureDamage', ['Attack: ', creature.damage]))
-          el.push(m('.creatureHp', ['HP: ', creature.hp, '/', base.hp]))
+          el.push(m('.creatureDamage', ['Attack: ', creature.attack]))
+          el.push(m('.creatureDefend', ['Defend: ', creature.defend]))
           el.push(
             m('.creatureMoves', ['Moves: ', creature.moves, '/', base.moves])
           )

@@ -13,8 +13,9 @@ export default class Login {
               let username = document.getElementById('alias').value
               let password = document.getElementById('password').value
               w.auth.authenticate(username, password).then(x => {
-                w.arena.updateUser()
-                m.redraw()
+                w.arena.updateUser().then(x => {
+                  m.redraw()
+                })
               })
             }
           })
@@ -27,6 +28,7 @@ export default class Login {
             onclick: () => {
               w.log.info('logging out')
               w.auth.logout().then(x => {
+                w.arena.user = null
                 m.redraw()
               })
             }

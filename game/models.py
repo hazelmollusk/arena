@@ -80,41 +80,44 @@ class Game(ArenaModel):
         base, isnew = CreatureBase.objects.get_or_create(name='Tree')
         base.name = 'Tree'
         base.exp = 1
-        base.hp = 1
+        base.defend = 1
         base.moves = 0
         base.icon = 'tree'
         base.save()
-        tree = Creature.objects.create(base=base, hp=base.hp, game=self)
+        tree = Creature.objects.create(
+            base=base, defend=base.defend, game=self)
         return tree
 
     def get_mirk(self):
         base, isnew = CreatureBase.objects.get_or_create(name='Mirkwood')
         base.name = 'Mirkwood'
         base.exp = 5
-        base.hp = 2
+        base.defend = 2
         base.moves = 0
         base.icon = 'mirkwood'
         base.save()
-        tree = Creature.objects.create(base=base, hp=base.hp, game=self)
+        tree = Creature.objects.create(
+            base=base, defend=base.defend, game=self)
         return tree
 
     def get_wiz(self, x, y, user):
         base, isnew = CreatureBase.objects.get_or_create(name='Wizard')
         base.name = 'Wizard'
         base.exp = 0
-        base.hp = 2
+        base.defend = 2
+        base.attack = 1
         base.moves = 2
         base.icon = 'wizard'
         base.save()
         wiz_name = WIZ_NAMES[randint(0, len(WIZ_NAMES)-1)]
         wiz = Creature.objects.create(
-            base=base, hp=base.hp, game=self, name=wiz_name, x=x, y=y, user=user, moves=base.moves)
-        spells = SpellBase.objects.all()
+            base=base, defend=base.defend, game=self, attack=base.attack,
+            name=wiz_name, x=x, y=y, user=user, moves=base.moves)
+        spells = SpellBase.objects.filter(wizard=True)
         if len(spells):
             for i in range(0, 30):
                 base = spells[randint(0, len(spells)-1)]
                 spell = Spell.objects.create(base=base, creature=wiz)
-
         return wiz
 
     def generate_board(self):
@@ -132,7 +135,7 @@ class Game(ArenaModel):
                 if not y in grid:
                     grid[y] = {}
                 grid[y][x] = Cell.objects.create(game=self, x=x, y=y, tile=t)
-        for i in range(1, randint(0, self.size)):
+        for i in range(1, randint(0, self.size*3)):
             tree = self.get_tree() if randint(0, 2) else self.get_mirk()
             tree.x = randint(1, self.size)
             tree.y = randint(1, self.size)
@@ -194,10 +197,11 @@ class Game(ArenaModel):
             dead = True
             creatures = Creature.objects.filter(game=self, user=player.user)
             for creature in creatures:
+                # is this hacky?  should wizard be a boolean field?
                 if creature.name in WIZ_NAMES and creature.alive:
                     dead = False
             if dead:
-                gp = GamePlayer.objects.filter(game=self, user=player.user)
+                gp = GamePlayer.objects.get(game=self, user=player.user)
                 gp.dead = True
                 gp.save()
             else:
@@ -232,22 +236,29 @@ class Game(ArenaModel):
 class CreatureBase(ArenaModel):
     name = models.CharField(max_length=32)
     summon_message = models.CharField(max_length=64, blank=True, null=True)
-    hp = models.PositiveSmallIntegerField(default=1)
+    defend = models.PositiveSmallIntegerField(default=1)
     alignment = models.SmallIntegerField(default=0)
-    damage = models.PositiveSmallIntegerField(default=1)
+    attack = models.PositiveSmallIntegerField(default=1)
     moves = models.PositiveSmallIntegerField(default=2)
     icon = models.CharField(max_length=20)
     spells = models.ManyToManyField('SpellBase', null=True, blank=True)
+    flying = models.BooleanField(default=False)
+    magical = models.BooleanField(default=False)
+    undead = models.BooleanField(default=False)
 
     def __str__(self):
-        return 'CreatureBase: %s' % self.name
+        return self.name
 
     def get_creature(self):
-        creature = Creature()
-        creature.base = self
-        creature.hp = self.hp
-        creature.moves = self.moves
-        creature.damage = self.damage
+        creature = Creature(
+            base=self,
+            defend=self.defend,
+            moves=self.moves,
+            attack=self.attack,
+            flying=self.flying,
+            magical=self.magical,
+            undead=self.undead
+        )
         return creature
 
 
@@ -259,14 +270,17 @@ class Creature(ArenaModel):
     user = models.ForeignKey(USER, null=True, blank=True,
                              on_delete=models.CASCADE,
                              related_name="creatures")
-    hp = models.SmallIntegerField(default=1)
+    defend = models.SmallIntegerField(default=1)
     moves = models.SmallIntegerField(default=0)
-    damage = models.PositiveSmallIntegerField(default=0)
+    attack = models.PositiveSmallIntegerField(default=0)
     x = models.PositiveSmallIntegerField(default=0)
     y = models.PositiveSmallIntegerField(default=0)
     alive = models.BooleanField(default=True)
     cast = models.BooleanField(default=False)
     align = models.IntegerField(default=0)
+    flying = models.BooleanField(default=False)
+    magical = models.BooleanField(default=False)
+    undead = models.BooleanField(default=False)
 
     def __str__(self):
         return '%s' % self.name if self.name else self.base.name
@@ -315,16 +329,16 @@ class Creature(ArenaModel):
 
     def combat(self, creature):
         # TODO special features?
-        creature.take_damage(self.damage)
+        creature.take_attack(self.attack)
         print('combat')
         self.moves = 0
         self.save()
         return "fought"
 
-    def take_damage(self, damage):
-        pp(['damage', self.hp, damage])
-        self.hp -= damage
-        if self.hp <= 0:
+    def take_attack(self, attack):
+        pp(['attack', self.defend, attack])
+        self.defend -= attack
+        if self.defend <= 0:
             self.alive = False
         self.save()
 
@@ -335,22 +349,30 @@ TARGET_TYPES = (
     (2, 'LOS'),
     (3, 'Creature'),
     (4, 'Any'),
-    (5, 'None'),
+    (5, 'Ranged'),
+    (6, 'None'),
 )
 
 EFFECT_TYPES = (
     (0, 'Summon'),
     (1, 'Fireball'),
-    (2, 'Strength')
+    (2, 'Strength'),
+    (3, 'Arrows'),
+    (4, 'Grass'),  # TODO multi target spells
+    (5, 'Mirkwood'),
+    (6, 'Summon')
 )
 
 
 class SpellBase(ArenaModel):
     name = models.CharField(max_length=32)
+    success_msg = models.CharField(max_length=100, blank=True)
+    failure_msg = models.CharField(max_length=100, blank=True)
     alignment = models.SmallIntegerField(default=0)
     level = models.PositiveSmallIntegerField(default=0)
     target_type = models.PositiveSmallIntegerField(
         choices=TARGET_TYPES, default=0)
+    wizard = models.BooleanField(default=True)
     summons = models.ForeignKey(
         CreatureBase,
         on_delete=models.SET_NULL,
@@ -358,12 +380,13 @@ class SpellBase(ArenaModel):
         blank=True,
         related_name="spellbase",
     )
+    ranged = models.PositiveSmallIntegerField(default=0)
     effect = models.PositiveSmallIntegerField(
         choices=EFFECT_TYPES, default=0)
     repeat = models.BooleanField(default=False)
 
     def __str__(self):
-        return 'SpellBase: %s' % self.name
+        return self.name
 
 
 class Spell(ArenaModel):
@@ -428,9 +451,9 @@ class Spell(ArenaModel):
                 base=self.base.summons,
                 game=self.creature.game,
                 user=self.creature.user,
-                hp=self.base.summons.hp,
+                defend=self.base.summons.defend,
                 moves=0,
-                damage=self.base.summons.damage,
+                attack=self.base.summons.attack,
                 x=x,
                 y=y,
                 cast=False if base.repeat else True
@@ -438,6 +461,9 @@ class Spell(ArenaModel):
             if base.repeat:
                 newc.cast = False
             newc.save()
+            for spellbase in newc.base.spells.all():
+                print(['adding spell', spellbase])
+                spell = Spell.objects.create(base=spellbase, creature=newc)
             return True
         else:
             # non-summon spells
@@ -449,14 +475,16 @@ class Spell(ArenaModel):
             pp(['cast_real', base.name, base.effect])
             if base.effect == 1:
                 print('fireball', base.name)
-                target.take_damage(3)
+                target.take_attack(3)
             elif base.effect == 2:
                 print('strength', target)
-                target.damage += 3
-                target.hp += 3
-                print(target.damage, target.hp)
+                target.attack += 3
+                target.defend += 3
+                print(target.attack, target.defend)
                 target.save()
                 target = Creature.objects.get(
                     game=creature.game, x=x, y=y)
-                print(target.damage, target.hp)
+                print(target.attack, target.defend)
+            elif base.effect == 3:  # arrows
+                pass
             return True
