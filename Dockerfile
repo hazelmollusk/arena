@@ -10,11 +10,13 @@ RUN DEBIAN_FRONTEND=noninteractive \
 RUN python3 -mvenv /home/arena/venv
 COPY . /home/arena/arena
 WORKDIR /home/arena/arena
-RUN pip install -r /home/arena/arena/requirements.txt
+RUN source /home/arena/venv/bin/activate && \
+    pip install -r /home/arena/arena/requirements.txt
 COPY ./assets/arena.conf /etc/apache2/sites-available/
 RUN a2ensite arena.conf
 RUN a2enmod wsgi
 RUN npm install -g npm
+RUN pwd
 RUN npm install
 # RUN npm run build
 EXPOSE 80
