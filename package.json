@@ -11,7 +11,7 @@
     "buildcss": "npx sass css/index.sass game/static/arena/app.css",
     "watchcss": "npx sass css/index.sass game/static/arena/app.css --watch"
   },
-  "author": "",
+  "author": "Matt Barry <matt@hazelmollusk.org>",
   "license": "ISC",
   "dependencies": {
     "bootstrap": "^5.1.3",

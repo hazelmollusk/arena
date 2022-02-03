@@ -13,4 +13,4 @@ requests==2.26.0
 sqlparse==0.4.1
 toml==0.10.2
 urllib3==1.26.7
-walax==1.1.4
+walax==1.1.6
