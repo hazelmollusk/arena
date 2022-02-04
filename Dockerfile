@@ -7,19 +7,21 @@ RUN DEBIAN_FRONTEND=noninteractive \
     apache2 \
     npm \
     python3-venv
-RUN python3 -mvenv /home/arena/venv
 COPY . /home/arena/arena
+RUN ./build.sh
 WORKDIR /home/arena/arena
-RUN . /home/arena/venv/bin/activate && \
+RUN . /home/arena/arena/env/bin/activate && \
     pip install -r /home/arena/arena/requirements.txt
-RUN . /home/arena/venv/bin/activate && \
-    ./manage.py collectstatic
+RUN . /home/arena/arena/env/bin/activate && \
+    pip install -r /home/arena/arena/requirements.txt
+
 COPY ./assets/arena.conf /etc/apache2/sites-available/
 RUN a2ensite arena.conf
 RUN a2enmod wsgi
 RUN npm install -g npm
+RUN pwd
 RUN npm install
-RUN npm run build
+# RUN npm run build
 EXPOSE 80
 ENTRYPOINT \
     APACHE_RUN_DIR=/etc/apache2 \
