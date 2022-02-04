@@ -18,9 +18,8 @@ COPY ./assets/arena.conf /etc/apache2/sites-available/
 RUN a2ensite arena.conf
 RUN a2enmod wsgi
 RUN npm install -g npm
-RUN pwd
 RUN npm install
-# RUN npm run build
+RUN npm run build
 EXPOSE 80
 ENTRYPOINT \
     APACHE_RUN_DIR=/etc/apache2 \
