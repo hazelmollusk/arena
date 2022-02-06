@@ -11,13 +11,12 @@ phases:
       - "echo Build completed on `date`"
       - "echo Pushing the Docker image..."
       - "docker push hazelmollusk/arena:latest"
-      - "printf '[{\"name\":\"arena\",\"imageUri\":\"hazelmollusk/arena\"}]' >
-imagedefinitions.json"
+      - "printf '[{\"name\":\"arena\",\"imageUri\":\"hazelmollusk/arena\"}]' > imagedefinitions.json"
       - "cat imagedefinitions.json"
-    artifacts:
-      files: imagedefinitions.json
   pre_build: 
     commands: 
       - "echo Logging in to Docker Hub..."
       - "docker login --username=\"hazelmollusk\" --password=\"HailEris523!\""
+  artifacts:
+    files: imagedefinitions.json
 version: 0.1
