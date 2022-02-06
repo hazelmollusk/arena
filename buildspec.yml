@@ -13,6 +13,7 @@ phases:
       - "docker push hazelmollusk/arena:latest"
       - "printf '[{\"name\":\"arena\",\"imageUri\":\"hazelmollusk/arena\"}]' >
 imagedefinitions.json"
+      - "cat imagedefinitions.json"
   pre_build: 
     commands: 
       - "echo Logging in to Docker Hub..."
