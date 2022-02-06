@@ -14,6 +14,8 @@ phases:
       - "printf '[{\"name\":\"arena\",\"imageUri\":\"hazelmollusk/arena\"}]' >
 imagedefinitions.json"
       - "cat imagedefinitions.json"
+    artifacts:
+      files: imagedefinitions.json
   pre_build: 
     commands: 
       - "echo Logging in to Docker Hub..."
