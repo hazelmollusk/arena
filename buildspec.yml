@@ -17,6 +17,6 @@ phases:
     commands: 
       - "echo Logging in to Docker Hub..."
       - "docker login --username=\"hazelmollusk\" --password=\"HailEris523!\""
-  artifacts:
-    files: imagedefinitions.json
+artifacts:
+  files: imagedefinitions.json
 version: 0.1
