@@ -4,8 +4,8 @@ phases:
     commands: 
       - "echo Build started on `date`"
       - "echo Building the Docker image..."
-      - "docker build -t hazelmollusk/arena ."
-      - "docker tag hazelmollusk/arena hazelmollusk/arena"
+      - "docker build -t arena ."
+      - "docker tag arena hazelmollusk/arena"
   post_build: 
     commands: 
       - "echo Build completed on `date`"
