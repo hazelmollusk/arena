@@ -11,7 +11,7 @@ phases:
       - "echo Build completed on `date`"
       - "echo Pushing the Docker image..."
       - "docker push hazelmollusk/arena:latest"
-      - "printf '[{\"name\":\"hazelmollusk/arena\",\"imageUri\":\"hazelmollusk/arena\"}]' > imagedefinitions.json"
+      - "printf '[{\"name\":\"arena\",\"imageUri\":\"hazelmollusk/arena\"}]' > imagedefinitions.json"
       - "cat imagedefinitions.json"
   pre_build: 
     commands: 
