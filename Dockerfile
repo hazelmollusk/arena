@@ -1,5 +1,7 @@
 FROM debian:sid
 RUN adduser --system --home /home/arena --disabled-password --disabled-login arena
+RUN addgroup arena
+RUN adduser arena arena
 RUN apt-get -qq update
 RUN DEBIAN_FRONTEND=noninteractive \
     apt-get install -qqqy \

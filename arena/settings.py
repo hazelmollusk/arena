@@ -4,7 +4,7 @@ from django.db.models import BigAutoField
 
 from datetime import timedelta
 
-ALLOWED_HOSTS = ["192.168.1.185", "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["*"]
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = "az12(4n2qj6+6o=F00710053=6iw_r=)uj=(ft11e1t1f"
 DEBUG = True
