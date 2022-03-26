@@ -24,6 +24,10 @@ phases:
       # - "docker login --username=\"hazelmollusk\" --password=\"HailEris523!\""
       - echo Logging in to Amazon ECR...
       - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+      - aws --region $AWS_DEFAULT_REGION ecr get-login-password | docker login \
+          --password-stdin \
+          --username AWS \
+          880644200418.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/arena:latest
 # artifacts:
 #   files: imagedefinitions.json
 version: 0.2
