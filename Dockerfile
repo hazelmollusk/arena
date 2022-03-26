@@ -9,7 +9,8 @@ RUN DEBIAN_FRONTEND=noninteractive \
     libapache2-mod-wsgi-py3 \
     apache2 \
     npm \
-    python3-venv
+    python3-venv \
+    awscli
 COPY . /home/arena/arena
 WORKDIR /home/arena/arena
 RUN ./build.sh
