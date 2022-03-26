@@ -20,8 +20,8 @@ phases:
       - docker push 880644200418.dkr.ecr.us-east-1.amazonaws.com/arena:latest
   pre_build: 
     commands: 
-      # - "echo Logging in to Docker Hub..."
-      # - "docker login --username=\"hazelmollusk\" --password=\"HailEris523!\""
+      - "echo Logging in to Docker Hub..."
+      - "docker login --username=\"hazelmollusk\" --password=\"HailEris523!\""
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password | docker login --username AWS --password-stdin 880644200418.dkr.ecr.us-east-1.amazonaws.com
 # artifacts:
