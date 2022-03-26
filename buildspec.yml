@@ -10,7 +10,7 @@ phases:
     commands: 
       - "echo Build completed on `date`"
       - "echo Pushing the Docker image..."
-      - "docker push 880644200418.dkr.ecr.us-east-1.amazonaws.com/hazelmollusk/arena:latest"
+      - "docker push 880644200418.dkr.ecr.us-east-1.amazonaws.com/arena:latest"
       - "printf '[{\"name\":\"arena\",\"imageUri\":\"880644200418.dkr.ecr.us-east-1.amazonaws.com/hazelmollusk/arena:latest\"}]' > imagedefinitions.json"
       - "cat imagedefinitions.json"
   pre_build: 
