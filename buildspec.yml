@@ -6,17 +6,24 @@ phases:
       # - "echo Building the Docker image..."
       # - "docker build -t arena ."
       # - "docker tag arena 880644200418.dkr.ecr.us-east-1.amazonaws.com/arena"
-  post_build: 
+      - echo Build started `date`
+      - docker build -t arena:latest .
+      - docker tag arena:latest 880644200418.dkr.ecr.us-east-1.amazonaws.com/arena:latest
+  post_build:
     commands: 
       # - "echo Build completed on `date`"
       # - "echo Pushing the Docker image..."
       # - "docker push 880644200418.dkr.ecr.us-east-1.amazonaws.com/arena:latest"
       # - "printf '[{\"name\":\"arena\",\"imageUri\":\"880644200418.dkr.ecr.us-east-1.amazonaws.com/hazelmollusk/arena:latest\"}]' > imagedefinitions.json"
       # - "cat imagedefinitions.json"
+      - echo Build finished `date`
+      - docker push 880644200418.dkr.ecr.us-east-1.amazonaws.com/arena:latest
   pre_build: 
     commands: 
       # - "echo Logging in to Docker Hub..."
       # - "docker login --username=\"hazelmollusk\" --password=\"HailEris523!\""
-artifacts:
-  files: imagedefinitions.json
+      - echo Logging in to Amazon ECR...
+      - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+# artifacts:
+#   files: imagedefinitions.json
 version: 0.2
