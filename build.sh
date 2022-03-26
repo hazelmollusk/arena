@@ -7,4 +7,4 @@ pip3 install -r requirements.txt
 npm install
 npm run build
 ./manage.py collectstatic --noinput
-popdw
+popd
