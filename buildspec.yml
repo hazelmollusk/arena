@@ -26,7 +26,7 @@ phases:
       - aws --region $AWS_DEFAULT_REGION ecr get-login-password | docker login \
           --password-stdin \
           --username AWS \
-          880644200418.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/arena:latest
+          880644200418.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
 # artifacts:
 #   files: imagedefinitions.json
 version: 0.2
