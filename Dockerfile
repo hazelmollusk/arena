@@ -2,13 +2,16 @@ FROM debian:sid
 RUN adduser --system --home /home/arena --disabled-password --disabled-login arena
 RUN addgroup arena
 RUN adduser arena arena
+# install npm from nodesource, not debian
+# debian depends on X :P
+RUN curl -fsSL https://deb.nodesource.com/setup_17.x | bash -
 RUN apt-get -qq update
 RUN DEBIAN_FRONTEND=noninteractive \
     apt-get install -qqqy \
     python3-pip \
     libapache2-mod-wsgi-py3 \
     apache2 \
-    npm \
+    nodejs \
     python3-venv
 COPY . /home/arena/arena
 WORKDIR /home/arena/arena
