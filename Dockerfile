@@ -1,4 +1,4 @@
-FROM debian:sid
+FROM public.ecr.aws/debian/amd64:unstable-20220328-slim
 RUN adduser --system --home /home/arena --disabled-password --disabled-login arena
 RUN addgroup arena
 RUN adduser arena arena
@@ -17,8 +17,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_17.x | bash -
 RUN DEBIAN_FRONTEND=noninteractive \
     apt-get install -qqqy \
     nodejs=17.9.0-deb-1nodesource1
-RUN curl  https://bootstrap.pypa.io/get-pip.py | python3
-# RUN pip3 install virtualenv 
+RUN curl https://bootstrap.pypa.io/get-pip.py | python3
 COPY . /home/arena/arena
 WORKDIR /home/arena/arena
 RUN ./build.sh
