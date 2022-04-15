@@ -11,6 +11,9 @@ RUN DEBIAN_FRONTEND=noninteractive \
     python3 \
     python3-distutils \
     python3-venv
+RUN wget https://s3.region.amazonaws.com/amazon-ssm-region/latest/debian_amd64/amazon-ssm-agent.deb
+RUN dpkg -i amazon-ssm-agent.deb
+RUN systemctl enable amazon-ssm-agent
 # install npm from nodesource, not debian
 # debian depends on X :P
 RUN curl -fsSL https://deb.nodesource.com/setup_17.x | bash -

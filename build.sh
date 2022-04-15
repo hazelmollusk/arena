@@ -1,6 +1,6 @@
 #!/bin/bash
 pushd `dirname $0`
-rm -rf env node_modules
+rm -rf env node_modules .static
 python3 -mvenv env
 source ./env/bin/activate
 pip3 install -r requirements.txt
